@@ -7,6 +7,7 @@ export default class Day2 extends Component {
     super();
     this.state = {
       currentKey: '5',
+      secretCode: '',
       instructions: BATHROOM_CODE.split("\n"),
       history: []
     }
@@ -45,6 +46,7 @@ export default class Day2 extends Component {
         <p onClick={() => this.tick()}>Click me to run!</p>
         <p><code>Current State:</code></p>
         <p><code>currentKey: {this.state.currentKey}</code></p>
+        <p><code>secretCode: {this.state.secretCode}</code></p>
         <p><code>instructions: {this.displayInstructions()}</code></p>
         <code>history: {this.state.history}</code>
       </div>
