@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import Day1 from './day1';
 import Day2 from './day2';
+import Day3 from './day3';
 
 class App extends Component {
   render() {
@@ -16,6 +17,9 @@ class App extends Component {
           <p className="App-intro">
             To get started, edit <code>src/App.js</code> and save to reload.
           </p>
+        </div>
+        <div>
+          <Day3 />
         </div>
         <div>
           <Day2 />
