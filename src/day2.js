@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 
 const BATHROOM_CODE="ULL\nRRDDD\nLURDL\nUUUUD";
 
-// 789
-// 456
 // 123
+// 456
+// 789
 
 const LEFT_MOVES = {
   '1': '1',
@@ -31,18 +31,6 @@ const RIGHT_MOVES = {
 };
 
 const UP_MOVES = {
-  '1': '4',
-  '2': '5',
-  '3': '6',
-  '4': '7',
-  '5': '8',
-  '6': '9',
-  '7': '7',
-  '8': '8',
-  '9': '9'
-};
-
-const DOWN_MOVES = {
   '1': '1',
   '2': '2',
   '3': '3',
@@ -52,6 +40,18 @@ const DOWN_MOVES = {
   '7': '4',
   '8': '5',
   '9': '6'
+};
+
+const DOWN_MOVES = {
+  '1': '4',
+  '2': '5',
+  '3': '6',
+  '4': '7',
+  '5': '8',
+  '6': '9',
+  '7': '7',
+  '8': '8',
+  '9': '9'
 };
 
 export default class Day2 extends Component {
@@ -110,7 +110,9 @@ export default class Day2 extends Component {
       currentKey: nextKey,
       secretCode: nextSecretCode,
       instructions: nextInstructions,
-      history: [ ...this.state.history ]
+      history: [
+        `(currentKey: ${nextKey}, secretCode: ${nextSecretCode}, instructions: [${nextInstructions}])`,
+        ...this.state.history ]
     });
   }
 
@@ -136,6 +138,11 @@ export default class Day2 extends Component {
     return this.state.instructions.join(",")
   }
 
+  displayHistory() {
+    return this.state.history.join("\n");
+  }
+
+
   render() {
     return (
       <div>
@@ -145,7 +152,7 @@ export default class Day2 extends Component {
         <p><code>currentKey: {this.state.currentKey}</code></p>
         <p><code>secretCode: {this.state.secretCode}</code></p>
         <p><code>instructions: {this.displayInstructions()}</code></p>
-        <code>history: {this.state.history}</code>
+        <code><pre>history: {this.displayHistory()}</pre></code>
       </div>
     );
   }
