@@ -83,7 +83,8 @@ export default class Day1 extends Component {
     }
     console.log(newPlaces);
     // we haven't found a twice-visited place yet, so look through the new ones
-    for (var i=0; i<newPlaces.length; i++) {
+    // in reverse order, because the newest place is first on the list
+    for (var i=(newPlaces.length - 1); i>=0; i--) {
       console.log(this.state.visitedPositions, newPlaces[i]);
       if (this.state.visitedPositions.indexOf(newPlaces[i]) !== -1) {
         return newPlaces[i];
@@ -94,7 +95,7 @@ export default class Day1 extends Component {
     return null;
   }
 
-  computeNextPlaces(nextDirection, nextJump) {
+  computeNewPlaces(nextDirection, nextJump) {
     var newPlaces = [];
     for (var i = 1; i<= nextJump; i++) {
       if (nextDirection === 'E') {
@@ -116,7 +117,7 @@ export default class Day1 extends Component {
     var nextJump = this.jumpSize(nextInstruction);
     var nextX = this.newXPosition(nextDirection, nextJump);
     var nextY = this.newYPosition(nextDirection, nextJump);
-    var newPlaces = this.computeNextPlaces(nextDirection, nextJump);
+    var newPlaces = this.computeNewPlaces(nextDirection, nextJump);
     var archivedState = this.condensedState();
     // set the next state
     this.setState({
