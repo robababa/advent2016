@@ -18,6 +18,12 @@ export default class Day1 extends Component {
     }
   }
 
+  componentDidUpdate() {
+    if (this.state.instructions.length > 0) {
+      this.tick();
+    }
+  }
+
   newDirection(currentDirection, instruction) {
     // combine current direction with the turn
     var input  = currentDirection + instruction.substr(0, 1);
