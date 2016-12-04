@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FULL_LIST as INITIAL_LIST } from './day3_data';
+import { FULL_LIST as TRI_LIST } from './day3_data';
 
 const BATCH_SIZE = 100;
 
@@ -10,9 +10,22 @@ export default class Day3 extends Component {
       batchRunCount: 0,
       totalRunCount: 0,
       validCount: 0,
-      triangleList: INITIAL_LIST,
-      history: [`(validCount: 0, triangleList: ${INITIAL_LIST})`]
+      triangleList: this.transposeInitialList(TRI_LIST),
+      history: [`(validCount: 0, triangleList: ${TRI_LIST})`]
     }
+  }
+
+  transposeInitialList() {
+    console.log(TRI_LIST);
+    var newArray = [];
+    for (var i=0; i < TRI_LIST.length; i++) {
+      if (i % 3 === 0) {
+        newArray.push([ TRI_LIST[i][0], TRI_LIST[i+1][0], TRI_LIST[i+2][0] ]);
+        newArray.push([ TRI_LIST[i][1], TRI_LIST[i+1][1], TRI_LIST[i+2][1] ]);
+        newArray.push([ TRI_LIST[i][2], TRI_LIST[i+1][2], TRI_LIST[i+2][2] ]);
+      }
+    }
+    return newArray;
   }
 
   componentDidUpdate(prevProps, prevState) {
