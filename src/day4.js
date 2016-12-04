@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { SHORT_LIST as ROOM_LIST } from './day4_data';
+import Day4Room from './day4_room';
 
 const BATCH_SIZE = 100;
 
@@ -27,7 +28,8 @@ export default class Day4 extends Component {
 
   tick() {
     if (this.state.pendingRoomList.length > 0) {
-      //var nextRoom = this.state.pendingRoomList[0];
+      var nextRoom = new Day4Room(this.state.pendingRoomList[0]);
+      console.log(nextRoom);
       //var isValid = isRoomValid(nextRoom);
       this.setState({
         batchRunCount: (this.state.batchRunCount + 1) % BATCH_SIZE,
