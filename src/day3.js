@@ -16,7 +16,6 @@ export default class Day3 extends Component {
   }
 
   transposeInitialList() {
-    console.log(TRI_LIST);
     var newArray = [];
     for (var i=0; i < TRI_LIST.length; i++) {
       if (i % 3 === 0) {
