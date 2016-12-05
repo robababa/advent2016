@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { SHORT_LIST as ROOM_LIST } from './day4_data';
+import { FULL_LIST as ROOM_LIST } from './day4_data';
 import Day4Room from './day4_room';
 
 const BATCH_SIZE = 100;
@@ -18,13 +18,13 @@ export default class Day4 extends Component {
     }
   }
 
-//  componentDidUpdate(prevProps, prevState) {
-//    // keep going if we have more triangle candidates to inspect
-//    if ((this.state.pendingRoomList.length > 0) &&
-//        (this.state.batchRunCount !== 0)) {
-//      this.tick();
-//    }
-//  }
+  componentDidUpdate(prevProps, prevState) {
+    // keep going if we have more triangle candidates to inspect
+    if ((this.state.pendingRoomList.length > 0) &&
+        (this.state.batchRunCount !== 0)) {
+      this.tick();
+    }
+  }
 
   tick() {
     if (this.state.pendingRoomList.length > 0) {
