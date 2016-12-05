@@ -38,7 +38,10 @@ export default class Day4 extends Component {
           totalRunCount: this.state.totalRunCount + 1,
           validRoomCount: this.state.validRoomCount + 1,
           sectorIdTotal: this.state.sectorIdTotal + nextRoom.getSectorId(),
-          validRoomList: [nextRoom.getRoomCode(), ...this.state.validRoomList],
+          validRoomList: [
+            nextRoom.getDecryptedNameAndSector(),
+            ...this.state.validRoomList
+          ],
           pendingRoomList: this.state.pendingRoomList.slice(1),
           history: [`(validRoomCount: 0, pendingRoomList: ${ROOM_LIST})`]
         });

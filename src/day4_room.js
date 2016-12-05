@@ -2,7 +2,6 @@ const CHECKSUM_LENGTH = 5;
 
 export default class Day4Room {
 
-
   constructor(roomName) {
     // roomName = "fubrjhqlf-edvnhw-dftxlvlwlrq-803[wjvzd]"
     // split_dashes = ["fubrjhqlf", "edvnhw", "dftxlvlwlrq", "803[wjvzd]"]
@@ -19,6 +18,8 @@ export default class Day4Room {
     this.sortedLetters = this.actualName.join('').split('').sort();
     // "fubrjhqlf-edvnhw-dftxlvlwlrq"
     this.roomCode = this.actualName.join('-');
+    // for decryption
+    this.letterShift = this.sectorId % 26;
   }
 
   getSectorId() {
@@ -26,7 +27,27 @@ export default class Day4Room {
   }
 
   getRoomCode() {
-    return this.roomCode;
+    return `${this.roomCode}[${this.sectorId}]`;
+  }
+
+  getDecryptedNameAndSector() {
+    return `${this.getDecryptedName()}[${this.sectorId}]`;
+  }
+
+  getDecryptedName() {
+    return this.roomCode.split('').map((letter) => {
+      if (letter === '-') {
+        return ' ';
+      } else {
+        var charCode = letter.charCodeAt(0);
+        var zCode = 'z'.charCodeAt(0);
+        charCode += this.letterShift;
+        if (charCode > zCode) {
+          charCode -= 26
+        }
+        return String.fromCharCode(charCode);
+      }
+    }).join('');
   }
 
   isValid() {
