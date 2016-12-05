@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { SHORT_LIST as ROOM_LIST } from './day4_data';
+import { FULL_LIST as ROOM_LIST } from './day4_data';
 import Day4Room from './day4_room';
 
 const BATCH_SIZE = 100;
