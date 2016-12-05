@@ -28,9 +28,10 @@ export default class Day4Room {
   }
 
   computeChecksum() {
+    console.log('computeChecksum for ', this.sortedLetters);
     var answer = '';
     var letters = this.sortedLetters;
-    for (var freq = letters.length; freq > 1; freq--) {
+    for (var freq = letters.length; freq >= 1; freq--) {
       for (var i = 0; i < letters.length; i++) {
         var currentLetter = letters[i];
         if (answer.indexOf(letters[i]) !== -1) {
@@ -45,11 +46,13 @@ export default class Day4Room {
 
         // if our answer has built up to the checksum length, then we're done
         if (answer.length === CHECKSUM_LENGTH) {
+          console.log('computeChecksum() is ', answer);
           return answer;
         }
       }
     }
     // shouldn't get here, but just in case
+    console.log('computeChecksum() in the bailout return is ', answer);
     return answer;
   }
 
