@@ -2,7 +2,12 @@ export const SHORT_LIST = [
 "fubrjhqlf-edvnhw-dftxlvlwlrq-803[wjvzd]",
 "kzgwomvqk-rmttgjmiv-lmxizbumvb-902[zmnji]",
 "dkqjcbctfqwu-dwppa-fgukip-596[syiua]",
-"xjinphzm-bmvyz-ytz-gjbdnodxn-135[nzbdj]"];
+"xjinphzm-bmvyz-ytz-gjbdnodxn-135[nzbdj]",
+"uwtojhynqj-hfsid-xytwflj-177[ztsqu]",
+"udpsdjlqj-fkrfrodwh-ilqdqflqj-491[uscwt]",
+"kdijqrbu-fbqijys-whqii-sedjqydcudj-790[dijqb]",
+"udpsdjlqj-hjj-uhdftxlvlwlrq-439[jldhq]"
+];
 
 export const FULL_LIST = [
 "fubrjhqlf-edvnhw-dftxlvlwlrq-803[wjvzd]",

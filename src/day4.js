@@ -29,17 +29,30 @@ export default class Day4 extends Component {
   tick() {
     if (this.state.pendingRoomList.length > 0) {
       var nextRoom = new Day4Room(this.state.pendingRoomList[0]);
-      console.log(nextRoom);
+      var nextRoomValid = nextRoom.isValid();
       //var isValid = isRoomValid(nextRoom);
-      this.setState({
-        batchRunCount: (this.state.batchRunCount + 1) % BATCH_SIZE,
-        totalRunCount: this.state.totalRunCount + 1,
-        validRoomCount: 0,
-        sectorIdTotal: 0,
-        validRoomList: [],
-        pendingRoomList: this.state.pendingRoomList.slice(1),
-        history: [`(validRoomCount: 0, pendingRoomList: ${ROOM_LIST})`]
-      });
+      if (nextRoomValid) {
+        this.setState({
+          batchRunCount: (this.state.batchRunCount + 1) % BATCH_SIZE,
+          totalRunCount: this.state.totalRunCount + 1,
+          validRoomCount: this.state.validRoomCount + 1,
+          sectorIdTotal: this.sectorIdTotal + nextRoom.getSectorId(),
+          validRoomList: this.validRoomList,
+          pendingRoomList: this.state.pendingRoomList.slice(1),
+          history: [`(validRoomCount: 0, pendingRoomList: ${ROOM_LIST})`]
+        });
+      } else {
+        this.setState({
+          batchRunCount: (this.state.batchRunCount + 1) % BATCH_SIZE,
+          totalRunCount: this.state.totalRunCount + 1,
+          validRoomCount: this.state.validRoomCount,
+          sectorIdTotal: this.sectorIdTotal,
+          validRoomList: this.validRoomList,
+          pendingRoomList: this.state.pendingRoomList.slice(1),
+          history: [`(validRoomCount: 0, pendingRoomList: ${ROOM_LIST})`]
+        });
+      }
+
     }
   }
 
