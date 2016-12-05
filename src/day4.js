@@ -36,8 +36,8 @@ export default class Day4 extends Component {
           batchRunCount: (this.state.batchRunCount + 1) % BATCH_SIZE,
           totalRunCount: this.state.totalRunCount + 1,
           validRoomCount: this.state.validRoomCount + 1,
-          sectorIdTotal: this.sectorIdTotal + nextRoom.getSectorId(),
-          validRoomList: this.validRoomList,
+          sectorIdTotal: this.state.sectorIdTotal + nextRoom.getSectorId(),
+          validRoomList: this.state.validRoomList,
           pendingRoomList: this.state.pendingRoomList.slice(1),
           history: [`(validRoomCount: 0, pendingRoomList: ${ROOM_LIST})`]
         });
@@ -46,8 +46,8 @@ export default class Day4 extends Component {
           batchRunCount: (this.state.batchRunCount + 1) % BATCH_SIZE,
           totalRunCount: this.state.totalRunCount + 1,
           validRoomCount: this.state.validRoomCount,
-          sectorIdTotal: this.sectorIdTotal,
-          validRoomList: this.validRoomList,
+          sectorIdTotal: this.state.sectorIdTotal,
+          validRoomList: this.state.validRoomList,
           pendingRoomList: this.state.pendingRoomList.slice(1),
           history: [`(validRoomCount: 0, pendingRoomList: ${ROOM_LIST})`]
         });
