@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FULL_LIST as ROOM_LIST } from './day4_data';
+import { SHORT_LIST as ROOM_LIST } from './day4_data';
 import Day4Room from './day4_room';
 
 const BATCH_SIZE = 100;
@@ -28,7 +28,8 @@ export default class Day4 extends Component {
 
   tick() {
     if (this.state.pendingRoomList.length > 0) {
-      var nextRoom = new Day4Room(this.state.pendingRoomList[0]);
+      var nextRoomCode = this.state.pendingRoomList[0];
+      var nextRoom = new Day4Room(nextRoomCode);
       var nextRoomValid = nextRoom.isValid();
       //var isValid = isRoomValid(nextRoom);
       if (nextRoomValid) {
@@ -37,7 +38,7 @@ export default class Day4 extends Component {
           totalRunCount: this.state.totalRunCount + 1,
           validRoomCount: this.state.validRoomCount + 1,
           sectorIdTotal: this.state.sectorIdTotal + nextRoom.getSectorId(),
-          validRoomList: this.state.validRoomList,
+          validRoomList: [nextRoom.getRoomCode(), ...this.state.validRoomList],
           pendingRoomList: this.state.pendingRoomList.slice(1),
           history: [`(validRoomCount: 0, pendingRoomList: ${ROOM_LIST})`]
         });
@@ -70,8 +71,16 @@ export default class Day4 extends Component {
         <p><code>totalRunCount: {this.state.totalRunCount}</code></p>
         <p><code>validRoomCount: {this.state.validRoomCount}</code></p>
         <p><code>sectorIdTotal: {this.state.sectorIdTotal}</code></p>
-        <p><code>validRoomList: {this.state.validRoomList}</code></p>
-        <p><code>pendingRoomList: {this.displayList(this.state.pendingRoomList)}</code></p>
+        <p>
+          <code>
+            validRoomList: {this.displayList(this.state.validRoomList)}
+          </code>
+        </p>
+        <p>
+          <code>
+            pendingRoomList: {this.displayList(this.state.pendingRoomList)}
+          </code>
+        </p>
         <code><pre>history: {this.state.history}</pre></code>
       </div>
     );

@@ -17,10 +17,16 @@ export default class Day4Room {
     this.checksum = lastPart.split('[')[1].slice(0, -1);
     // array of the letters, with duplicates
     this.sortedLetters = this.actualName.join('').split('').sort();
+    // "fubrjhqlf-edvnhw-dftxlvlwlrq"
+    this.roomCode = this.actualName.join('-');
   }
 
   getSectorId() {
     return this.sectorId;
+  }
+
+  getRoomCode() {
+    return this.roomCode;
   }
 
   isValid() {
@@ -56,4 +62,5 @@ export default class Day4Room {
   countFrequency(letters, letter) {
     return letters.filter(function same(el) { return el === letter}).length;
   }
+
 }
