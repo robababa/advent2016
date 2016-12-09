@@ -5,6 +5,7 @@ import Day1 from './day1';
 import Day2 from './day2';
 import Day3 from './day3';
 import Day4 from './day4';
+import Day8 from './day8';
 
 class App extends Component {
   render() {
@@ -18,6 +19,9 @@ class App extends Component {
           <p className="App-intro">
             To get started, edit <code>src/App.js</code> and save to reload.
           </p>
+        </div>
+        <div>
+          <Day8 />
         </div>
         <div>
           <Day4 />
