@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { INSTRUCTION_ARRAY } from './day10_data';
 
-//const BATCH_SIZE = 10;
+const BATCH_SIZE = 100;
 
 export default class Day10 extends Component {
   constructor() {
@@ -23,9 +23,12 @@ export default class Day10 extends Component {
   }
 
   componentDidUpdate() {
-    if (this.instructionsLeft())
-    {
-      this.processNextInstruction();
+    if (this.instructionsLeft()) {
+      if(this.state.batchesRan % BATCH_SIZE !== 0) {
+        this.processNextInstruction();
+      } else {
+        console.log(`Stopping after ${BATCH_SIZE} batches`);
+      }
     }
   }
 
