@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { INSTRUCTION_ARRAY } from './day10_data';
 
+//const BATCH_SIZE = 10;
+
 export default class Day10 extends Component {
   constructor() {
     super();
@@ -9,7 +11,8 @@ export default class Day10 extends Component {
       botChips: {},
       outputChips: {},
       currentInstruction: 0,
-      completedInstructions: []
+      completedInstructions: [],
+      batches_ran: 1
     }
   }
 
@@ -36,8 +39,9 @@ export default class Day10 extends Component {
   skipInstruction() {
     var newState = this.state;
     newState.currentInstruction = this.computeNextInstruction();
+    newState.batchesRan += 1;
     this.setState(newState);
-    console.log(this.state);
+    //console.log(this.state);
   }
 
   markInstructionComplete(botChips, outputChips) {
@@ -49,9 +53,10 @@ export default class Day10 extends Component {
       botChips: botChips,
       outputChips: outputChips,
       currentInstruction: this.computeNextInstruction(),
-      completedInstructions: arr
+      completedInstructions: arr,
+      batches_ran: this.state.batches_ran + 1
     });
-    console.log(this.state);
+    //console.log(this.state);
   }
 
   getInstruction() {
@@ -65,7 +70,7 @@ export default class Day10 extends Component {
       botChips[bot] = [];
     }
     botChips[bot].push(chip);
-    console.log(`Bot ${bot} is TAKING chip ${chip}`);
+    //console.log(`Bot ${bot} is TAKING chip ${chip}`);
     this.markInstructionComplete(botChips, this.state.outputChips);
   }
 
@@ -117,12 +122,12 @@ export default class Day10 extends Component {
     var s = this.state;
     var curInst = s.currentInstruction
     if (s.completedInstructions.includes(curInst)) {
-      console.log(`Will skip instruction ${curInst} - already done`);
+      //console.log(`Will skip instruction ${curInst} - already done`);
       return true;
     }
 
     if (this.impossiblePassInstruction()) {
-      console.log(`Will skip instruction ${curInst} - cannot do`);
+      //console.log(`Will skip instruction ${curInst} - cannot do`);
       return true;
     } else {
       return false;

@@ -1,4 +1,4 @@
-export const INSTRUCTION_ARRAY =
+export const SHORT_INSTRUCTION_ARRAY =
 `value 5 goes to bot 2
 bot 2 gives low to bot 1 and high to bot 0
 value 3 goes to bot 1
@@ -16,7 +16,7 @@ value 2 goes to bot 2`.replace(
   function(element, index){ return element.split(" ");
 });
 
-export const LONG_INSTRUCTION_ARRAY =
+export const INSTRUCTION_ARRAY =
 `bot 37 gives low to bot 114 and high to bot 150
 value 2 goes to bot 156
 bot 84 gives low to bot 174 and high to bot 155
