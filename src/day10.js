@@ -17,6 +17,12 @@ export default class Day10 extends Component {
     }
   }
 
+  componentDidUpdate() {
+    if (this.state.keepGoing) {
+      this.processNextInstruction();
+    }
+  }
+
   updateState(botChips, outputChips) {
     // first, see how to advance to the next instruction
     var takingChips = this.state.takingChips;
@@ -39,7 +45,7 @@ export default class Day10 extends Component {
       currentInstruction: nextInstruction,
       keepGoing: keepGoing
     });
-    console.log(this.state);
+    //console.log(this.state);
   }
 
   getInstruction() {
@@ -51,13 +57,12 @@ export default class Day10 extends Component {
     if (myInstruction[0] === 'value') {
       // this instruction says take a chip, so do it
       var botChips = this.state.botChips;
-      var [_, chipNumber, __, botNumber] = myInstruction;
-      if (botChips[botNumber] === undefined) {
-        botChips[botNumber] = [];
+      var [_1, chip, _2, bot] = myInstruction;
+      if (botChips[bot] === undefined) {
+        botChips[bot] = [];
       }
-      botChips[botNumber].push(chipNumber);
-      console.log("Bot ", botNumber, " is TAKING chip ", chipNumber);
-
+      botChips[bot].push(chip);
+      console.log(`Bot ${bot} is TAKING chip ${chip}`);
       this.updateState(botChips, this.state.outputChips);
     } else {
       // do nothing (update state with existing values)
@@ -81,6 +86,24 @@ export default class Day10 extends Component {
       `and chip ${highChip} to ${highType} ${highNumber}`
     );
 
+    // add the low and high chips to the bots/outputs, and remove them from
+    // the donor bot
+    if (lowType === 'bot') {
+      if (botChips[lowNumber] === undefined) {botChips[lowNumber] = [];}
+      botChips[lowNumber].push(lowChip);
+    } else {
+      if (outputChips[lowNumber] === undefined) {outputChips[lowNumber] = [];}
+      outputChips[lowNumber].push(lowChip);
+    }
+    if (highType === 'bot') {
+      if (botChips[highNumber] === undefined) {botChips[highNumber] = [];}
+      botChips[highNumber].push(highChip);
+    } else {
+      if (outputChips[highNumber] === undefined) {outputChips[highNumber] = [];}
+      outputChips[highNumber].push(highChip);
+    }
+    botChips[bot] = [];
+
     this.updateState(this.state.botChips, this.state.outputChips);
   }
 
@@ -93,7 +116,9 @@ export default class Day10 extends Component {
   }
 
   tick() {
-    this.processNextInstruction();
+    if (this.state.keepGoing) {
+      this.processNextInstruction();
+    }
   }
 
   renderInstructionArray() {
