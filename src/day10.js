@@ -28,7 +28,8 @@ export default class Day10 extends Component {
 
   // from where we are, which instruction will be next?
   computeNextInstruction() {
-    return (this.state.currentInstruction + 1);
+    var instrCount = this.state.instructionArray.length;
+    return ((this.state.currentInstruction + 1) % instrCount);
   }
 
   // We might skip an instruction if we already ran it, or we can't run it
@@ -135,7 +136,7 @@ export default class Day10 extends Component {
     if (this.shouldSkipInstruction()) {
       this.skipInstruction();
     } else {
-      if (this.state.instructionArray[this.state.currentInstruction] === 'bot') {
+      if (this.state.instructionArray[this.state.currentInstruction][0] === 'bot') {
         this.processPassChips();
       } else {
         this.processTakeChip();
@@ -144,7 +145,10 @@ export default class Day10 extends Component {
   }
 
   tick() {
-    this.processNextInstruction();
+    if (this.instructionsLeft())
+    {
+      this.processNextInstruction();
+    }
   }
 
   renderInstructionArray() {
