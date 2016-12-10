@@ -1,4 +1,4 @@
-export instructionArray = [
+export const INSTRUCTION_ARRAY = [
 ['bot', 37, 'bot', 114, 'bot', 150],
 ['value', 2, 'bot', 156],
 ['bot', 84, 'bot', 174, 'bot', 155],
