@@ -8,44 +8,49 @@ export default class Day10 extends Component {
       instructionArray: INSTRUCTION_ARRAY,
       botChips: {},
       outputChips: {},
-      // bots are taking chips in the first pass, then
-      // passing them out in the second pass
-      takingChips: true,
       currentInstruction: 0,
-      keepGoing: true
-
+      completedInstructions: []
     }
   }
 
+
+  instructionsLeft() {
+    var s = this.state;
+    return (s.completedInstructions.length < s.instructionArray.length);
+  }
+
   componentDidUpdate() {
-    if (this.state.keepGoing) {
+    if (this.instructionsLeft())
+    {
       this.processNextInstruction();
     }
   }
 
-  updateState(botChips, outputChips) {
-    // first, see how to advance to the next instruction
-    var takingChips = this.state.takingChips;
-    var nextInstruction = this.state.currentInstruction + 1;
-    var keepGoing = this.state.keepGoing;
-    if (nextInstruction >= INSTRUCTION_ARRAY.length && ! takingChips) {
-      // we just finished giving back chips, so we are done
-      keepGoing = false;
-    } else if (nextInstruction >= INSTRUCTION_ARRAY.length) {
-      // we just finished taking chips, so now it is time to give them back
-      nextInstruction = 0;
-      takingChips = false;
-    }
+  // from where we are, which instruction will be next?
+  computeNextInstruction() {
+    return (this.state.currentInstruction + 1);
+  }
 
+  // We might skip an instruction if we already ran it, or we can't run it
+  skipInstruction() {
+    var newState = this.state;
+    newState.currentInstruction = this.computeNextInstruction();
+    this.setState(newState);
+    console.log(this.state);
+  }
+
+  markInstructionComplete(botChips, outputChips) {
+    var s = this.state;
+    var arr = s.completedInstructions;
+    arr.push(s.currentInstruction);
     this.setState({
       instructionArray: INSTRUCTION_ARRAY,
       botChips: botChips,
       outputChips: outputChips,
-      takingChips: takingChips,
-      currentInstruction: nextInstruction,
-      keepGoing: keepGoing
+      currentInstruction: this.computeNextInstruction(),
+      completedInstructions: arr
     });
-    //console.log(this.state);
+    console.log(this.state);
   }
 
   getInstruction() {
@@ -53,39 +58,25 @@ export default class Day10 extends Component {
   }
 
   processTakeChip() {
-    var myInstruction = this.getInstruction();
-    if (myInstruction[0] === 'value') {
-      // this instruction says take a chip, so do it
-      var botChips = this.state.botChips;
-      var [_1, chip, _2, bot] = myInstruction;
-      if (botChips[bot] === undefined) {
-        botChips[bot] = [];
-      }
-      botChips[bot].push(chip);
-      console.log(`Bot ${bot} is TAKING chip ${chip}`);
-      this.updateState(botChips, this.state.outputChips);
-    } else {
-      // do nothing (update state with existing values)
-      this.updateState(this.state.botChips, this.state.outputChips);
+    var [_1, chip, _2, bot] = this.getInstruction();
+    var botChips = this.state.botChips;
+    if (botChips[bot] === undefined) {
+      botChips[bot] = [];
     }
+    botChips[bot].push(chip);
+    console.log(`Bot ${bot} is TAKING chip ${chip}`);
+    this.markInstructionComplete(botChips, this.state.outputChips);
   }
 
   processPassChips() {
     var myInstruction = this.getInstruction();
-    if (myInstruction[0] !== 'bot') {
-      // do not change state and return
-      this.updateState(this.state.botChips, this.state.outputChips);
-      return;
-    }
-    // this instruction says pass chips, so do it
-    var {botChips, outputChips} = this.state;
     var [_, bot, lowType, lowNumber, highType, highNumber] = myInstruction;
+    var {botChips, outputChips} = this.state;
     var [lowChip, highChip] = botChips[bot].sort();
     console.log(
       `Bot ${bot} is GIVING chip ${lowChip} to ${lowType} ${lowNumber}`,
       `and chip ${highChip} to ${highType} ${highNumber}`
     );
-
     // add the low and high chips to the bots/outputs, and remove them from
     // the donor bot
     if (lowType === 'bot') {
@@ -104,21 +95,56 @@ export default class Day10 extends Component {
     }
     botChips[bot] = [];
 
-    this.updateState(this.state.botChips, this.state.outputChips);
+    this.markInstructionComplete(this.state.botChips, this.state.outputChips);
+  }
+
+  impossiblePassInstruction() {
+    var instruct = this.getInstruction();
+
+    if (instruct[0] === 'bot' &&
+        (this.state.botChips[instruct[1]]  === undefined
+         ||
+         this.state.botChips[instruct[1]].length < 2)
+       ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  shouldSkipInstruction() {
+    var s = this.state;
+    var curInst = s.currentInstruction
+    if (s.completedInstructions.includes(curInst)) {
+      console.log(`Will skip instruction ${curInst} - already done`);
+      return true;
+    }
+
+    if (this.impossiblePassInstruction()) {
+      console.log(`Will skip instruction ${curInst} - cannot do`);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   processNextInstruction() {
-    if (this.state.takingChips) {
-      this.processTakeChip();
+    if (! this.instructionsLeft() ) {
+      return;
+    }
+    if (this.shouldSkipInstruction()) {
+      this.skipInstruction();
     } else {
-      this.processPassChips();
+      if (this.state.instructionArray[this.state.currentInstruction] === 'bot') {
+        this.processPassChips();
+      } else {
+        this.processTakeChip();
+      }
     }
   }
 
   tick() {
-    if (this.state.keepGoing) {
-      this.processNextInstruction();
-    }
+    this.processNextInstruction();
   }
 
   renderInstructionArray() {
