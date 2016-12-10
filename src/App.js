@@ -5,7 +5,7 @@ import './App.css';
 //import Day2 from './day2';
 //import Day3 from './day3';
 //import Day4 from './day4';
-import Day8 from './day8';
+//import Day8 from './day8';
 import Day10 from './day10';
 
 class App extends Component {
@@ -24,12 +24,12 @@ class App extends Component {
         <div>
           <Day10 />
         </div>
-        <div>
-          <Day8 />
-        </div>
       </div>
     );
   }
+//        <div>
+//          <Day8 />
+//        </div>
 //        <div>
 //          <Day4 />
 //        </div>
@@ -43,8 +43,6 @@ class App extends Component {
 //          <Day1 />
 //        </div>
 //      </div>
-//    );
-//  }
 }
 
 export default App;
