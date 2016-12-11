@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { INSTRUCTION_ARRAY } from './day10_data';
 
-const BATCH_SIZE = 100;
+const BATCH_SIZE = 1000;
+
+// 161 is too high
 
 export default class Day10 extends Component {
   constructor() {
@@ -12,19 +14,26 @@ export default class Day10 extends Component {
       outputChips: {},
       currentInstruction: 0,
       completedInstructions: [],
-      batches_ran: 1
+      batchesRan: 1
     }
   }
 
 
   instructionsLeft() {
     var s = this.state;
-    return (s.completedInstructions.length < s.instructionArray.length);
+    var keepGoing = (
+        s.completedInstructions.length < s.instructionArray.length
+    );
+    if (! keepGoing) {
+      console.log(this.state);
+    }
+    return keepGoing;
   }
 
   componentDidUpdate() {
     if (this.instructionsLeft()) {
       if(this.state.batchesRan % BATCH_SIZE !== 0) {
+        //console.log(this.state);
         this.processNextInstruction();
       } else {
         console.log(`Stopping after ${BATCH_SIZE} batches`);
@@ -57,7 +66,7 @@ export default class Day10 extends Component {
       outputChips: outputChips,
       currentInstruction: this.computeNextInstruction(),
       completedInstructions: arr,
-      batches_ran: this.state.batches_ran + 1
+      batchesRan: this.state.batchesRan + 1
     });
     //console.log(this.state);
   }
@@ -81,11 +90,22 @@ export default class Day10 extends Component {
     var myInstruction = this.getInstruction();
     var [_, bot, lowType, lowNumber, highType, highNumber] = myInstruction;
     var {botChips, outputChips} = this.state;
-    var [lowChip, highChip] = botChips[bot].sort();
-    console.log(
-      `Bot ${bot} is GIVING chip ${lowChip} to ${lowType} ${lowNumber}`,
-      `and chip ${highChip} to ${highType} ${highNumber}`
-    );
+    var [lowChip, highChip] = botChips[bot].sort(function compare(a,b) {
+      var [numA, numB] = [Number.parseInt(a, 10), Number.parseInt(b,10)];
+      if (numA < numB) {
+        return -1;
+      } else if (numB < numA) {
+        return 1;
+      } else {
+        return 0
+      }
+    });
+    if (lowChip === '17' && highChip === '61') {
+      console.log(
+        `Bot ${bot} is GIVING chip ${lowChip} to ${lowType} ${lowNumber}`,
+        `and chip ${highChip} to ${highType} ${highNumber}`
+      );
+    }
     // add the low and high chips to the bots/outputs, and remove them from
     // the donor bot
     if (lowType === 'bot') {
