@@ -6,7 +6,8 @@ import './App.css';
 //import Day3 from './day3';
 //import Day4 from './day4';
 //import Day8 from './day8';
-import Day10 from './day10';
+//import Day10 from './day10';
+import Day9 from './day9';
 
 class App extends Component {
   render() {
@@ -22,11 +23,14 @@ class App extends Component {
           </p>
         </div>
         <div>
-          <Day10 />
+          <Day9 />
         </div>
       </div>
     );
   }
+//        <div>
+//          <Day10 />
+//        </div>
 //        <div>
 //          <Day8 />
 //        </div>
