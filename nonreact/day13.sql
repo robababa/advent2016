@@ -1,4 +1,4 @@
-drop table if exists points;
+drop table if exists points cascade;
 
 create table points (
   id serial primary key,
@@ -33,6 +33,28 @@ with
 select x, y, f_wall_or_space(x, y, 10)
 from x_set cross join y_set;
 
+-- remove the walls from our set of points, because we can't walk through them
+delete from points where wall_or_space = '#';
+
 -- this works, but how do I ensure that the values in the array are ordered by x?
 -- select y, array_to_string(array_agg(wall_or_space), '') as x from points group by y order by y;
 
+drop table if exists connected;
+
+create table connected (
+  id serial,
+  point1_id int not null references points,
+  point2_id int not null references points,
+  distance int not null,
+  unique(point1_id, point2_id),
+  constraint connected_ordered_points check (point1_id < point2_id)
+);
+
+insert into connected (point1_id, point2_id, distance)
+select
+least(p1.id, p2.id), greatest(p1.id, p2.id), 1
+from
+points p1, points p2
+where
+(p1.x     = p2.x and p1.y + 1 = p2.y) or
+(p1.x + 1 = p2.x and p1.y     = p2.y);
