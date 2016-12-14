@@ -83,3 +83,15 @@ where
 c.point1_id is null
 order by
 cc.point1_id, cc.point2_id, cc.new_distance;
+
+-- do we have a result?
+select c.*
+from
+points as p1
+inner join
+connected as c on p1.id = c.point1_id
+inner join
+points as p2 on c.point2_id = p2.id
+where p1.x = 1 and p1.y = 1 and
+p2.x = 7 and p2.y = 4;
+
