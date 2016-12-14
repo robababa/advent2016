@@ -17,7 +17,7 @@ $$
 select
 case
   length(
-    replace((x*x + 3*x + 2*x*y + y + y*y + favorite)::bit(10)::text,
+    replace((x*x + 3*x + 2*x*y + y + y*y + favorite)::bit(32)::text,
             '0',
             '')
   ) % 2
@@ -28,9 +28,9 @@ $$ language sql;
 
 insert into points (x, y, wall_or_space)
 with
-  x_set as (select generate_series(0, 9, 1) as x),
-  y_set as (select generate_series(0, 9, 1) as y)
-select x, y, f_wall_or_space(x, y, 10)
+  x_set as (select generate_series(0, 60, 1) as x),
+  y_set as (select generate_series(0, 60, 1) as y)
+select x, y, f_wall_or_space(x, y, 1352)
 from x_set cross join y_set;
 
 -- remove the walls from our set of points, because we can't walk through them

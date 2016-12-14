@@ -93,5 +93,5 @@ connected as c on p1.id = c.point1_id
 inner join
 points as p2 on c.point2_id = p2.id
 where p1.x = 1 and p1.y = 1 and
-p2.x = 7 and p2.y = 4;
+p2.x = 31 and p2.y = 39;
 
