@@ -95,3 +95,15 @@ points as p2 on c.point2_id = p2.id
 where p1.x = 1 and p1.y = 1 and
 p2.x = 31 and p2.y = 39;
 
+-- part 2
+select
+/* point (1,1 itself) adds one */
+count(*) + 1
+from points as p,
+connected as c
+where
+p.x = 1 and p.y = 1
+and
+(p.id = c.point1_id or p.id = c.point2_id)
+and
+c.distance <= 50;
