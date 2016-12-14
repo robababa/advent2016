@@ -1,10 +1,12 @@
 drop table if exists points;
 
 create table points (
+  id serial primary key,
   x int not null,
   y int not null,
   wall_or_space varchar(1) not null
-    check (wall_or_space in ('#', '.'))
+    check (wall_or_space in ('#', '.')),
+  unique(x, y)
 );
 
 create or replace function
@@ -24,8 +26,6 @@ else '#'
 end;
 $$ language sql;
 
-insert into point
-
 insert into points (x, y, wall_or_space)
 with
   x_set as (select generate_series(0, 9, 1) as x),
@@ -35,5 +35,4 @@ from x_set cross join y_set;
 
 -- this works, but how do I ensure that the values in the array are ordered by x?
 -- select y, array_to_string(array_agg(wall_or_space), '') as x from points group by y order by y;
-
 
