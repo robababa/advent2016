@@ -1,12 +1,18 @@
-drop table if exists building;
+drop table if exists building, move_count;
 
 create table building (floor int not null, slot int not null, thing varchar(2) not null);
+
+create table move_count (move_count int not null default 0);
 
 create or replace function init_building() returns void
 language plpgsql
 as
 $$
 begin
+  -- reset the move counter
+  delete from move_count;
+  insert into move_count values (0);
+  -- clear out the building
   delete from building;
   -- initial positions for microchips and generators
   insert into building (floor, slot, thing)
@@ -39,6 +45,40 @@ begin
   empties.slot = building.slot
   where
   building.thing is null;
+end;
+$$;
+
+-- move one item in the elevator
+create or replace function move(old_floor int, new_floor int, item1 varchar) returns void
+language plpgsql as
+$$
+begin
+  -- move the elevator - remove from old floor, add to new floor
+  update building set thing = '.' where thing = 'E' and floor = old_floor;
+  update building set thing = 'E' where slot = 0 and floor = new_floor;
+  -- move the item - add to new floor, remove from old floor
+  update building set thing = item1 where floor = new_floor and slot = (select slot from building where thing = item1);
+  update building set thing = '.' where floor = old_floor and thing = item1;
+  -- update the move counter
+  update move_count set move_count = move_count + 1;
+end;
+$$;
+
+-- move two items in the elevator
+create or replace function move(old_floor int, new_floor int, item1 varchar, item2 varchar) returns void
+language plpgsql as
+$$
+begin
+  -- move the elevator - remove from old floor, add to new floor
+  update building set thing = '.' where thing = 'E' and floor = old_floor;
+  update building set thing = 'E' where slot = 0 and floor = new_floor;
+  -- move the items - add to new floor, remove from old floor
+  update building set thing = item1 where floor = new_floor and slot = (select slot from building where thing = item1);
+  update building set thing = '.' where floor = old_floor and thing = item1;
+  update building set thing = item2 where floor = new_floor and slot = (select slot from building where thing = item2);
+  update building set thing = '.' where floor = old_floor and thing = item2;
+  -- update the move counter
+  update move_count set move_count = move_count + 1;
 end;
 $$;
 
