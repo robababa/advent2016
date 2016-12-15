@@ -82,8 +82,8 @@ begin
 end;
 $$;
 
--- initialize the building
-select init_building();
-
--- view the arrangement
-select floor, slot, thing from building order by floor desc, slot \crosstabview
+-- -- initialize the building
+-- select init_building();
+-- 
+-- -- view the arrangement
+-- select floor, slot, thing from building order by floor desc, slot \crosstabview
