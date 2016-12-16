@@ -9,11 +9,17 @@ create table position
   m1 int not null check (m1 in (1,2,3,4)),
   g1 int not null check (g1 in (1,2,3,4)),
   m2 int not null check (m2 in (1,2,3,4)),
-  g2 int not null check (g2 in (1,2,3,4))
+  g2 int not null check (g2 in (1,2,3,4)),
+  m3 int not null check (m2 in (1,2,3,4)),
+  g3 int not null check (g2 in (1,2,3,4)),
+  m4 int not null check (m2 in (1,2,3,4)),
+  g4 int not null check (g2 in (1,2,3,4)),
+  m5 int not null check (m2 in (1,2,3,4)),
+  g5 int not null check (g2 in (1,2,3,4))
 );
 
-insert into position (e, m1, g1, m2, g2)
-select e, m1, g1, m2, g2
+insert into position (e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5)
+select e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5
 from
 (select generate_series(1,4,1) as e) as e
 cross join
@@ -24,14 +30,29 @@ cross join
 (select generate_series(1,4,1) as m2) as m2
 cross join
 (select generate_series(1,4,1) as g2) as g2
+cross join
+(select generate_series(1,4,1) as m3) as m3
+cross join
+(select generate_series(1,4,1) as g3) as g3
+cross join
+(select generate_series(1,4,1) as m4) as m4
+cross join
+(select generate_series(1,4,1) as g4) as g4
+cross join
+(select generate_series(1,4,1) as m5) as m5
+cross join
+(select generate_series(1,4,1) as g5) as g5
 where
 -- the elevator is not by itself
-arraycontains(ARRAY[m1, g1, m2, g2], ARRAY[e])
+arraycontains(ARRAY[m1, g1, m2, g2, m3, g3, m4, g4, m5, g5], ARRAY[e])
 and
 -- no microchip is on a floor with a generator
 -- but without its own generator
-(m1 = g1 or not (arraycontains(ARRAY[g1,g2], ARRAY[m1]))) and
-(m2 = g2 or not (arraycontains(ARRAY[g1,g2], ARRAY[m2])));
+(m1 = g1 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m1]))) and
+(m2 = g2 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m2]))) and
+(m2 = g3 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m2]))) and
+(m2 = g4 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m2]))) and
+(m2 = g5 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m2])));
 
 -- result is 484 rows, out of a possible 1024, so a little
 -- over half were removed as impossible
@@ -40,12 +61,24 @@ and
 -- change it to zero as a trick to help us peek ahead for answers
 update position
 set id = 0
-where e = 1 and m1 = 1 and g1 = 2 and m2 = 1 and g2 = 3;
+where e = 1 and
+m1 = 2 and g1 = 1 and
+m2 = 2 and g2 = 1 and
+m3 = 2 and g3 = 1 and
+m4 = 2 and g4 = 1 and
+m5 = 2 and g5 = 1;
+
 -- update the id for the final position so it is assuredly the
 -- highest
 update position
 set id = 100000000
-where e = 4 and m1 = 4 and g1 = 4 and m2 = 4 and g2 = 4;
+where e = 4
+and
+m1 = 4 and g1 = 4 and
+m2 = 4 and g2 = 4 and
+m3 = 4 and g3 = 4 and
+m4 = 4 and g4 = 4 and
+m5 = 4 and g5 = 4;
 
 -- create the connections table, which connect one position to another
 create table connected (
@@ -102,7 +135,7 @@ begin
   return 'NO_GOOD';
 end;
 $$
-language plpgsql;
+language plpgsql immutable;
 
 -- for each existing position, find its neighbors
 -- each match will be doubled up, because a position finds its neighbor
@@ -121,28 +154,72 @@ where
 (
   -- the elevator moved up one, taking one element with it
   p1.e + 1 = p2.e and compare_positions(p1.e,
-    array[[p1.m1, p2.m1],[p1.g1, p2.g1],[p1.m2, p2.m2],[p1.g2, p2.g2]]) =
+    array[
+      [p1.m1, p2.m1],
+      [p1.g1, p2.g1],
+      [p1.m2, p2.m2],
+      [p1.g2, p2.g2],
+      [p1.m3, p2.m3],
+      [p1.g3, p2.g3],
+      [p1.m4, p2.m4],
+      [p1.g4, p2.g4],
+      [p1.m5, p2.m5],
+      [p1.g5, p2.g5]
+      ]) =
     'ONE_UP'
 )
 or
 (
   -- the elevator moved up one, taking two elements with it
   p1.e + 1 = p2.e and compare_positions(p1.e,
-    array[[p1.m1, p2.m1],[p1.g1, p2.g1],[p1.m2, p2.m2],[p1.g2, p2.g2]]) =
+    array[
+      [p1.m1, p2.m1],
+      [p1.g1, p2.g1],
+      [p1.m2, p2.m2],
+      [p1.g2, p2.g2],
+      [p1.m3, p2.m3],
+      [p1.g3, p2.g3],
+      [p1.m4, p2.m4],
+      [p1.g4, p2.g4],
+      [p1.m5, p2.m5],
+      [p1.g5, p2.g5]
+      ]) =
     'TWO_UP'
 )
 or
 (
   -- the elevator moved down one, taking one element with it
   p1.e - 1 = p2.e and compare_positions(p1.e,
-    array[[p1.m1, p2.m1],[p1.g1, p2.g1],[p1.m2, p2.m2],[p1.g2, p2.g2]]) =
+    array[
+      [p1.m1, p2.m1],
+      [p1.g1, p2.g1],
+      [p1.m2, p2.m2],
+      [p1.g2, p2.g2],
+      [p1.m3, p2.m3],
+      [p1.g3, p2.g3],
+      [p1.m4, p2.m4],
+      [p1.g4, p2.g4],
+      [p1.m5, p2.m5],
+      [p1.g5, p2.g5]
+      ]) =
     'ONE_DOWN'
 )
 or
 (
   -- the elevator moved down one, taking one element with it
   p1.e - 1 = p2.e and compare_positions(p1.e,
-    array[[p1.m1, p2.m1],[p1.g1, p2.g1],[p1.m2, p2.m2],[p1.g2, p2.g2]]) =
+    array[
+      [p1.m1, p2.m1],
+      [p1.g1, p2.g1],
+      [p1.m2, p2.m2],
+      [p1.g2, p2.g2],
+      [p1.m3, p2.m3],
+      [p1.g3, p2.g3],
+      [p1.m4, p2.m4],
+      [p1.g4, p2.g4],
+      [p1.m5, p2.m5],
+      [p1.g5, p2.g5]
+      ]) =
     'TWO_DOWN'
 );
 
