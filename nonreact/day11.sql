@@ -36,12 +36,16 @@ and
 -- result is 484 rows, out of a possible 1024, so a little
 -- over half were removed as impossible
 
--- the id for the sample starting position is 42 (really)
-select * from position where
-e = 1 and m1 = 1 and g1 = 2 and m2 = 1 and g2 = 3;
--- the id for the final position is 484
-select * from position where
-e = 4 and m1 = 4 and g1 = 4 and m2 = 4 and g2 = 4;
+-- the id for the sample starting position is 42 (really), but we
+-- change it to zero as a trick to help us peek ahead for answers
+update position
+set id = 0
+where e = 1 and m1 = 1 and g1 = 2 and m2 = 1 and g2 = 3;
+-- update the id for the final position so it is assuredly the
+-- highest
+update position
+set id = 100000000
+where e = 4 and m1 = 4 and g1 = 4 and m2 = 4 and g2 = 4;
 
 create table round (round int not null);
 insert into round values (0);

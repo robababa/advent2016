@@ -89,17 +89,17 @@ order by
 cc.position1_id, cc.position2_id, cc.new_distance;
 
 -- do we have a result?
-select c.*
+select * from connected where position1_id = 0 and position2_id = 100000000;
+
+-- try again, by combining two segments that exist
+select min(a.distance + b.distance)
 from
-position as p1
-inner join
-connected as c on p1.id = c.position1_id
-inner join
-position as p2 on c.position2_id = p2.id
+connected as a
+inner join connected as b
+on a.position2_id = b.position1_id
 where
-(p1.e = 1 and p1.m1 = 1 and p1.g1 = 2 and p1.m2 = 1 and p1.g2 = 3)
-and
-(p2.e = 4 and p2.m1 = 4 and p2.g1 = 4 and p2.m2 = 4 and p2.g2 = 4);
+a.position1_id = 0 and b.position2_id = 100000000;
+
 
 -- part 2
 -- select
