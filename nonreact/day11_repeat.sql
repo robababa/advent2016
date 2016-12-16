@@ -2,9 +2,7 @@
 -- (1) we connect the two positions we want
 -- (2) we aren't adding any more positions to the connected table
 
-update round set round = round + 1;
-
-insert into connected (position1_id, position2_id, distance, round)
+insert into connected (position1_id, position2_id, distance)
 with
 first_candidates
 as
@@ -76,13 +74,12 @@ as
 )
 select
 distinct on (cc.position1_id, cc.position2_id)
-cc.position1_id, cc.position2_id, cc.new_distance, round.round
+cc.position1_id, cc.position2_id, cc.new_distance
 from
 combined_candidates as cc left join connected as c
 on
 cc.position1_id = c.position1_id and
 cc.position2_id = c.position2_id
-cross join round
 where
 c.position1_id is null
 order by
