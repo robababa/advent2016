@@ -1,6 +1,6 @@
 -- create the position with the elevator, microchips and generators
 
-drop table if exists position, connected cascade;
+drop table if exists position, round, connected cascade;
 
 create table position
 (
@@ -43,12 +43,16 @@ e = 1 and m1 = 1 and g1 = 2 and m2 = 1 and g2 = 3;
 select * from position where
 e = 4 and m1 = 4 and g1 = 4 and m2 = 4 and g2 = 4;
 
+create table round (round int not null);
+insert into round values (0);
+
 -- create the connections table, which connect one position to another
 create table connected (
   id serial,
   position1_id int not null references position,
   position2_id int not null references position,
   distance int not null,
+  round int not null,
   unique(position1_id, position2_id),
   constraint connected_ordered_positions check (position1_id < position2_id)
 );
@@ -106,10 +110,12 @@ language plpgsql;
 -- use the constraint on id's to ensure no duplication in the connections
 -- table
 
-insert into connected (position1_id, position2_id, distance)
+update round set round = round + 1;
+
+insert into connected (position1_id, position2_id, distance, round)
 select
 distinct
-least(p1.id, p2.id), greatest(p1.id, p2.id), 1
+least(p1.id, p2.id), greatest(p1.id, p2.id), 1, (select round from round)
 from
 position p1, position p2
 where
@@ -140,3 +146,9 @@ or
     array[[p1.m1, p2.m1],[p1.g1, p2.g1],[p1.m2, p2.m2],[p1.g2, p2.g2]]) =
     'TWO_DOWN'
 );
+
+delete from position
+where
+id not in (select position1_id from connected)
+and
+id not in (select position2_id from connected);
