@@ -17,7 +17,7 @@ select
 c.position1_id as position_id, s2.distance + 1 as new_distance
 from
 connected c inner join sprawl as s2 on
-position1_id = s2.position_id
+position2_id = s2.position_id
 ) as source
 left join
 sprawl as already_sprawl
@@ -27,5 +27,5 @@ where
 already_sprawl.position_id is null;
 
 -- look for our destination row
---select * from sprawl where position_id = 100000000;
+select * from sprawl where position_id = 100000000;
 

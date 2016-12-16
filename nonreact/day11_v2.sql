@@ -146,11 +146,11 @@ or
     'TWO_DOWN'
 );
 
-delete from position
-where
-id not in (select position1_id from connected)
-and
-id not in (select position2_id from connected);
+--delete from position
+--where
+--id not in (select position1_id from connected)
+--and
+--id not in (select position2_id from connected);
 
 -- this table will start with positions immediately next to
 -- position 0, and spread out from there until one of the paths
