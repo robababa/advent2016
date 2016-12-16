@@ -106,28 +106,37 @@ language plpgsql;
 -- use the constraint on id's to ensure no duplication in the connections
 -- table
 
-----insert into connected (position1_id, position2_id, distance)
-----select
-----distinct
-----least(p1.id, p2.id), greatest(p1.id, p2.id), 1
-----from
-----position p1, position p2
-----where
------- the elevator moved up one, taking one element with it
-----(
-----  p1.e + 1 = p2.e and
-----
-----  -- the elevator moved up one, taking two elements with it
-----(
-----  p1.e + 1 = p2.e and
-----
------- the elevator moved down one, taking one element with it
-----(
-----  p1.e - 1 = p2.e and
-----
-----
------- the elevator moved down one, taking two elements with it
-----(
-----  p1.e - 1 = p2.e and
-
-
+insert into connected (position1_id, position2_id, distance)
+select
+distinct
+least(p1.id, p2.id), greatest(p1.id, p2.id), 1
+from
+position p1, position p2
+where
+(
+  -- the elevator moved up one, taking one element with it
+  p1.e + 1 = p2.e and compare_positions(p1.e,
+    array[[p1.m1, p2.m1],[p1.g1, p2.g1],[p1.m2, p2.m2],[p1.g2, p2.g2]]) =
+    'ONE_UP'
+)
+or
+(
+  -- the elevator moved up one, taking two elements with it
+  p1.e + 1 = p2.e and compare_positions(p1.e,
+    array[[p1.m1, p2.m1],[p1.g1, p2.g1],[p1.m2, p2.m2],[p1.g2, p2.g2]]) =
+    'TWO_UP'
+)
+or
+(
+  -- the elevator moved down one, taking one element with it
+  p1.e - 1 = p2.e and compare_positions(p1.e,
+    array[[p1.m1, p2.m1],[p1.g1, p2.g1],[p1.m2, p2.m2],[p1.g2, p2.g2]]) =
+    'ONE_DOWN'
+)
+or
+(
+  -- the elevator moved down one, taking one element with it
+  p1.e - 1 = p2.e and compare_positions(p1.e,
+    array[[p1.m1, p2.m1],[p1.g1, p2.g1],[p1.m2, p2.m2],[p1.g2, p2.g2]]) =
+    'TWO_DOWN'
+);
