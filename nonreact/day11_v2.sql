@@ -127,12 +127,36 @@ returns table(id_old int, e_new int, m_code_new int, g_code_new int)
 as
 $$
 declare
+  code_length int := length(m_code::varchar);
+  divisor int := 1; -- we will replace this value
 begin
-  e_new = e;
-  id_old = id;
-  m_code_new = m_code;
-  g_code_new = g_code;
-  return next;
+  -- cannot go up from the fourth floor
+  if (e >= 4) then
+    return;
+  end if;
+
+  -- iniitialize our return values for the new e and (old) id
+  e_new := e + 1;
+  id_old := id;
+
+  for i in reverse code_length..1 loop
+    divisor := pow(10, i - 1)::int;
+    -- if this microchip is on the same floor as the elevator
+    -- then move it!  The caller will determine whether the move was legal
+    if (m_code / divisor % 10 = e) then
+      select reorder_codes(m_code + divisor, g_code)
+        into m_code_new, g_code_new;
+    return next;
+    end if;
+
+    -- do the same thing for the generators
+    if (g_code / divisor % 10 = e) then
+      select reorder_codes(m_code, g_code + divisor)
+        into m_code_new, g_code_new;
+    return next;
+    end if;
+  end loop;
+  -- we're done
   return;
 end;
 $$
