@@ -2,7 +2,6 @@
 
 drop table if exists position, dummy, outreach, connected, sprawl cascade;
 create table dummy(m_code int, g_code int);
-create table outreach (id_old int, e_new int, m_code_new int, g_code_new int);
 
 create table position
 (
@@ -97,6 +96,7 @@ from
   (m5 = g5 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m5])))
 ) as source
 where
+-- this is the arrangement that has codes in preferred order
 reorder_codes(m_code, g_code) = (m_code, g_code);
 
 -- change the starting position id to zero to make it easy to identify
@@ -119,17 +119,6 @@ m2 = 4 and g2 = 4 and
 m3 = 4 and g3 = 4 and
 m4 = 4 and g4 = 4 and
 m5 = 4 and g5 = 4;
-
--- create the connections table, which connect one position to another
-create table connected (
-  id serial,
-  position1_id int not null references position,
-  position2_id int not null references position,
-  distance int not null,
-  unique(position1_id, position2_id),
-  constraint connected_ordered_positions check (position1_id < position2_id)
-);
-
 
 create or replace function move_one(
   floor_change int, id int, e int, m_code int, g_code int
@@ -183,6 +172,27 @@ begin
 end;
 $$
 language plpgsql immutable;
+
+-- now create the table that shows how one position can move into a new
+-- position (which may or may not be valid)
+create table outreach (id_old int, e_new int, m_code_new int, g_code_new int);
+
+insert into outreach select distinct id_old, e_new, m_code_new, g_code_new from position,
+lateral (
+  select *
+  from
+  move_one(1, position.id, position.e, position.m_code, position.g_code)
+) as lat;
+
+-- create the connections table, which connect one position to another
+create table connected (
+  id serial,
+  position1_id int not null references position,
+  position2_id int not null references position,
+  distance int not null,
+  unique(position1_id, position2_id),
+  constraint connected_ordered_positions check (position1_id < position2_id)
+);
 
 -- this table will start with positions immediately next to
 -- position 0, and spread out from there until one of the paths
