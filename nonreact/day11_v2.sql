@@ -1,6 +1,7 @@
 -- create the position with the elevator, microchips and generators
 
-drop table if exists position, connected, sprawl cascade;
+drop table if exists position, dummy, connected, sprawl cascade;
+create table dummy(m_code int, g_code int);
 
 create table position
 (
@@ -92,9 +93,9 @@ create table connected (
   constraint connected_ordered_positions check (position1_id < position2_id)
 );
 
-create or replace function reorder_codes(
-  in code1 int, in code2 int, out new_code1 int, out new_code2 int
-)
+
+create or replace function reorder_codes(in code1 int, in code2 int)
+returns dummy
 as
 $$
   with
@@ -129,13 +130,15 @@ $$
 declare
   code_length int := length(m_code::varchar);
   divisor int := 1; -- we will replace this value
+  reorder_return dummy%ROWTYPE;
 begin
   -- cannot go up from the fourth floor
   if (e >= 4) then
     return;
   end if;
 
-  -- iniitialize our return values for the new e and (old) id
+  -- iniitialize the new e and (old) id, which are the same for every row
+  -- that we return
   e_new := e + 1;
   id_old := id;
 
@@ -144,17 +147,18 @@ begin
     -- if this microchip is on the same floor as the elevator
     -- then move it!  The caller will determine whether the move was legal
     if (m_code / divisor % 10 = e) then
-      select reorder_codes(m_code + divisor, g_code)
-        into m_code_new, g_code_new;
+      reorder_return = reorder_codes(m_code + divisor, g_code);
+      m_code_new := reorder_return.m_code;
+      g_code_new := reorder_return.g_code;
     return next;
     end if;
 
-    -- do the same thing for the generators
-    if (g_code / divisor % 10 = e) then
-      select reorder_codes(m_code, g_code + divisor)
-        into m_code_new, g_code_new;
-    return next;
-    end if;
+--    -- do the same thing for the generators
+--    if (g_code / divisor % 10 = e) then
+--      select reorder_codes(m_code, g_code + divisor) into
+--        m_code_new, g_code_new;
+--    return next;
+--    end if;
   end loop;
   -- we're done
   return;
