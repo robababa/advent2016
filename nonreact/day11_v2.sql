@@ -128,6 +128,11 @@ as
 $$
 declare
 begin
+  e_new = e;
+  id_old = id;
+  m_code_new = m_code;
+  g_code_new = g_code;
+  return next;
   return;
 end;
 $$
