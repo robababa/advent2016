@@ -129,8 +129,13 @@ $$ language sql immutable;
 delete from position where (m_code, g_code) <> reorder_codes(m_code, g_code);
 delete from position as p1 where
 exists(
-  select 1 from position as p2 where p2.m_code = p1.m_code and
-  p2.g_code = p1.g_code and p2.id < p1.id
+  select 1
+  from position as p2
+  where
+  p2.e = p1.e and
+  p2.m_code = p1.m_code and
+  p2.g_code = p1.g_code and
+  p2.id < p1.id
 );
 
 
