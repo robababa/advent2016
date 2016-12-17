@@ -1,7 +1,6 @@
 -- create the position with the elevator, microchips and generators
 
 drop table if exists position, connected, sprawl cascade;
-drop type two_ints cascade;
 
 create table position
 (
@@ -93,18 +92,14 @@ create table connected (
   constraint connected_ordered_positions check (position1_id < position2_id)
 );
 
-create type two_ints as (i1 int, i2 int);
-
-create or replace function reorder_codes(code1 int, code2 int,
-out new_code1 int, out new_code2 int)
+create or replace function reorder_codes(
+  in code1 int, in code2 int, out new_code1 int, out new_code2 int
+)
 as
 $$
-declare
-  ints two_ints;
-begin
-  ints := (select
-    sum(m * pow(10, place - 1)) as m_code into new_code1,
-    sum(g * pow(10, place - 1)) as g_code into new_code2
+  select
+    sum(m * pow(10, place - 1)) as m_code,
+    sum(g * pow(10, place - 1)) as g_code
   from
   (
     select
@@ -118,12 +113,9 @@ begin
     ) as source
     order by
     m, g
-  ) as source2);
-  new_code1 = two_ints(i1);
-  new_code2 = two_ints(i2);
-  return;
+  ) as source2;
 end;
-$$ language plpgsql immutable;
+$$ language sql immutable;
 
 create or replace function up_one(id int, e int, m_code int, g_code int)
 returns table(id_old int, e_new int, m_code_new int, g_code_new int)
