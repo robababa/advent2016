@@ -142,14 +142,13 @@ exists(
 
 create or replace function move_one(
   floor_change int, id int, e int, m_code int, g_code int
-) returns setof outreach
+) returns table(id_old int, e_new int, m_code_new int, g_code_new int)
 as
 $$
 declare
   code_length int := length(m_code::varchar);
   divisor int := 1; -- we will replace this value
   reorder_return dummy%ROWTYPE;
-  o outreach%rowtype;
 begin
   -- can't move except up or down one floor
   if (floor_change <> -1 and floor_change <> 1) then
@@ -166,8 +165,8 @@ begin
 
   -- iniitialize the new e and (old) id, which are the same for every row
   -- that we return
-  o.e_new := e + floor_change;
-  o.id_old := id;
+  e_new := e + floor_change;
+  id_old := id;
 
   for i in reverse code_length..1 loop
     divisor := pow(10, i - 1)::int;
@@ -175,17 +174,17 @@ begin
     -- then move it!  The caller will determine whether the move was legal
     if (m_code / divisor % 10 = e) then
       reorder_return = reorder_codes(m_code + floor_change * divisor, g_code);
-      o.m_code_new := reorder_return.m_code;
-      o.g_code_new := reorder_return.g_code;
-    return next o;
+      m_code_new := reorder_return.m_code;
+      g_code_new := reorder_return.g_code;
+    return next;
     end if;
 
     -- do the same thing for the generators
     if (g_code / divisor % 10 = e) then
       reorder_return = reorder_codes(m_code, g_code + floor_change * divisor);
-      o.m_code_new := reorder_return.m_code;
-      o.g_code_new := reorder_return.g_code;
-    return next o;
+      m_code_new := reorder_return.m_code;
+      g_code_new := reorder_return.g_code;
+    return next;
     end if;
   end loop;
   -- we're done
