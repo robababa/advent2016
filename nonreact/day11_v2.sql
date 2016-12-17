@@ -1,6 +1,7 @@
 -- create the position with the elevator, microchips and generators
 
 drop table if exists position, connected, sprawl cascade;
+drop type two_ints cascade;
 
 create table position
 (
@@ -16,12 +17,14 @@ create table position
   g4 int not null check (g2 in (1,2,3,4)),
   m5 int not null check (m2 in (1,2,3,4)),
   g5 int not null check (g2 in (1,2,3,4)),
-  floor_total int not null
+  m_code int not null,
+  g_code int not null
 );
 
-insert into position (e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5, floor_total)
+insert into position (e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5, m_code, g_code)
 select e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5,
-  (m1 + g1 + m2 + g2 + m3 + g3 + m4 + g4 + m5 + g5) as floor_total
+  m1 * 10000 + m2 * 1000 + m3 * 100 + m4 * 10 + m5 as m_code,
+  g1 * 10000 + g2 * 1000 + g3 * 100 + g4 * 10 + g5 as g_code
 from
 (select generate_series(1,4,1) as e) as e
 cross join
@@ -90,145 +93,48 @@ create table connected (
   constraint connected_ordered_positions check (position1_id < position2_id)
 );
 
-create or replace function compare_positions(
-  elevator_start_floor int, before_after int[][])
-returns varchar
+create type two_ints as (i1 int, i2 int);
+
+create or replace function reorder_codes(code1 int, code2 int,
+out new_code1 int, out new_code2 int)
 as
 $$
 declare
-  up_count int := 0;
-  down_count int := 0;
-  item int[];
+  ints two_ints;
 begin
-  foreach item slice 1 in array before_after loop
-    if item[1] = item[2] then
-      continue;
-    end if;
+  ints := (select
+    sum(m * pow(10, place - 1)) as m_code into new_code1,
+    sum(g * pow(10, place - 1)) as g_code into new_code2
+  from
+  (
+    select
+      m::int as m,
+      g::int as g,
+      row_number() over (order by m desc) as place
+    from
+    (
+      select unnest(string_to_array(code1::varchar, null)) as m,
+      unnest(string_to_array(code2::varchar, null)) as g
+    ) as source
+    order by
+    m, g
+  ) as source2);
+  new_code1 = two_ints(i1);
+  new_code2 = two_ints(i2);
+  return;
+end;
+$$ language plpgsql immutable;
 
-    if (item[1] <> elevator_start_floor) then
-      -- items can't move without the elevator
-      return 'NO_GOOD';
-    elsif (abs(item[1] - item[2]) > 1) then
-      -- items can't move more than one floor
-      return 'NO_GOOD';
-    elsif (item[1] + 1 = item[2]) then
-      -- this item moved up
-      up_count = up_count + 1;
-    elsif (item[1] - 1 = item[2]) then
-      -- this item moved down
-      down_count = down_count + 1;
-    end if;
-  end loop;
-
-  -- if we had valid movement, return it
-  if (up_count = 1 and down_count = 0) then
-    return 'ONE_UP';
-  elsif (up_count = 2 and down_count = 0) then
-    return 'TWO_UP';
-  elsif (up_count = 0 and down_count = 1) then
-    return 'ONE_DOWN';
-  elsif (up_count = 0 and down_count = 2) then
-    return 'TWO_DOWN';
-  end if;
-
-  -- the movement must have been invalid, return NO_GOOD
-  return 'NO_GOOD';
+create or replace function up_one(id int, e int, m_code int, g_code int)
+returns table(id_old int, e_new int, m_code_new int, g_code_new int)
+as
+$$
+declare
+begin
+  return;
 end;
 $$
 language plpgsql immutable;
-
--- for each existing position, find its neighbors
--- each match will be doubled up, because a position finds its neighbor
--- and its neighbor finds the position.
--- use the constraint on id's to ensure no duplication in the connections
--- table
-
-/*
-insert into connected (position1_id, position2_id, distance)
-select
-distinct
-least(p1.id, p2.id), greatest(p1.id, p2.id), 1
-from
-position p1, position p2
-where
-(
-  -- the elevator moved up one, taking one element with it
-  p1.e + 1 = p2.e and compare_positions(p1.e,
-    array[
-      [p1.m1, p2.m1],
-      [p1.g1, p2.g1],
-      [p1.m2, p2.m2],
-      [p1.g2, p2.g2],
-      [p1.m3, p2.m3],
-      [p1.g3, p2.g3],
-      [p1.m4, p2.m4],
-      [p1.g4, p2.g4],
-      [p1.m5, p2.m5],
-      [p1.g5, p2.g5]
-      ]) =
-    'ONE_UP'
-)
-or
-(
-  -- the elevator moved up one, taking two elements with it
-  p1.e + 1 = p2.e and compare_positions(p1.e,
-    array[
-      [p1.m1, p2.m1],
-      [p1.g1, p2.g1],
-      [p1.m2, p2.m2],
-      [p1.g2, p2.g2],
-      [p1.m3, p2.m3],
-      [p1.g3, p2.g3],
-      [p1.m4, p2.m4],
-      [p1.g4, p2.g4],
-      [p1.m5, p2.m5],
-      [p1.g5, p2.g5]
-      ]) =
-    'TWO_UP'
-)
-or
-(
-  -- the elevator moved down one, taking one element with it
-  p1.e - 1 = p2.e and compare_positions(p1.e,
-    array[
-      [p1.m1, p2.m1],
-      [p1.g1, p2.g1],
-      [p1.m2, p2.m2],
-      [p1.g2, p2.g2],
-      [p1.m3, p2.m3],
-      [p1.g3, p2.g3],
-      [p1.m4, p2.m4],
-      [p1.g4, p2.g4],
-      [p1.m5, p2.m5],
-      [p1.g5, p2.g5]
-      ]) =
-    'ONE_DOWN'
-)
-or
-(
-  -- the elevator moved down one, taking one element with it
-  p1.e - 1 = p2.e and compare_positions(p1.e,
-    array[
-      [p1.m1, p2.m1],
-      [p1.g1, p2.g1],
-      [p1.m2, p2.m2],
-      [p1.g2, p2.g2],
-      [p1.m3, p2.m3],
-      [p1.g3, p2.g3],
-      [p1.m4, p2.m4],
-      [p1.g4, p2.g4],
-      [p1.m5, p2.m5],
-      [p1.g5, p2.g5]
-      ]) =
-    'TWO_DOWN'
-);
-*/
-
---delete from position
---where
---id not in (select position1_id from connected)
---and
---id not in (select position2_id from connected);
 
 -- this table will start with positions immediately next to
 -- position 0, and spread out from there until one of the paths
