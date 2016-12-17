@@ -17,6 +17,7 @@ s.distance = sp.distance - 1
 )
 select
 sprawl_positions.distance,
+position.e,
 position.m_code,
 position.g_code
 from sprawl_positions inner join position
