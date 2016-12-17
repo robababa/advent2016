@@ -1,6 +1,6 @@
 -- create the position with the elevator, microchips and generators
 
-drop table if exists position, dummy, outreach, connected cascade;
+drop table if exists position, dummy, outreach, sprawl, round cascade;
 create table dummy(m_code bigint, g_code bigint);
 
 create table position
@@ -222,16 +222,28 @@ language plpgsql immutable;
 
 -- now create the table that shows how one position can move into a new
 -- position (which may or may not be valid)
-create table outreach (id_old bigint, e_new bigint, m_code_new bigint, g_code_new bigint);
+create table outreach (
+  id_old bigint not null,
+  e_new bigint not null,
+  m_code_new bigint not null,
+  g_code_new bigint not null,
+  id_new bigint
+);
 
-insert into outreach select distinct id_old, e_new, m_code_new, g_code_new from position,
+insert into outreach (id_old, e_new, m_code_new, g_code_new)
+select distinct id_old, e_new, m_code_new, g_code_new
+from
+position,
 lateral (
   select *
   from
   move_one(1, position.id, position.e, position.m_code, position.g_code)
 ) as lat;
 
-insert into outreach select distinct id_old, e_new, m_code_new, g_code_new from position,
+insert into outreach (id_old, e_new, m_code_new, g_code_new)
+select distinct id_old, e_new, m_code_new, g_code_new
+from
+position,
 lateral (
   select *
   from
@@ -242,27 +254,42 @@ lateral (
 delete from outreach where
 (m_code_new, g_code_new) not in (select m_code, g_code from position);
 
--- create the connections table, which connect one position to another
-create table connected (
-  id serial,
-  position1_id bigint not null references position,
-  position2_id bigint not null references position,
-  distance bigint not null,
-  unique(position1_id, position2_id),
-  constraint connected_ordered_positions check (position1_id < position2_id)
+-- now assign the new IDs for outreach entries
+update outreach as o
+set
+id_new = p.id
+from
+position as p
+where
+o.m_code_new = p.m_code and o.g_code_new = p.g_code;
+
+-- after the previous update, none of the id_new values should be null
+alter table outreach alter column id_new set not null;
+
+create index on outreach (id_old);
+
+-- this table will start with positions immediately next to
+-- position 0, and spread out from there until one of the paths
+-- reaches the final position.  For sample data, this will be
+-- the 11th round.  Each iteration will be much smaller than they
+-- were before, but they also will take longer to find the final
+-- destination
+create table sprawl
+(
+  position_id bigint not null primary key,
+  distance bigint not null
 );
 
--- make the first connections from the outreach table
-insert into connected
-(position1_id, position2_id, distance)
-select
-distinct least(p_old.id, p_new.id), greatest(p_old.id, p_new.id), 1
-from
-position as p_old
-inner join
-outreach as o
-  on p_old.id = o.id_old
-inner join
-position as p_new
-  on o.m_code_new = p_new.m_code and o.g_code_new = p_new.g_code;
+-- each time we reach out for more connections, that is a "round"
+create table round
+(
+  id integer primary key check (id = 0),
+  round integer
+);
 
+insert into round (id, round) values (0, 0);
+
+-- initialize the sprawl table with our initial position
+insert into sprawl (position_id, distance) values (0, 0);
+
+update round set round = round + 1;
