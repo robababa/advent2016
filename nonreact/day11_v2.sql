@@ -15,11 +15,13 @@ create table position
   m4 int not null check (m2 in (1,2,3,4)),
   g4 int not null check (g2 in (1,2,3,4)),
   m5 int not null check (m2 in (1,2,3,4)),
-  g5 int not null check (g2 in (1,2,3,4))
+  g5 int not null check (g2 in (1,2,3,4)),
+  floor_total int not null
 );
 
-insert into position (e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5)
-select e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5
+insert into position (e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5, floor_total)
+select e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5,
+  (m1 + g1 + m2 + g2 + m3 + g3 + m4 + g4 + m5 + g5) as floor_total
 from
 (select generate_series(1,4,1) as e) as e
 cross join
@@ -43,7 +45,10 @@ cross join
 cross join
 (select generate_series(1,4,1) as g5) as g5
 where
--- the elevator is not by itself
+-- the microchip floors are in ascending order, to eliminate redundancy
+(m1 <= m2 and m2 <= m3 and m3 <= m4 and m4 <= m5)
+and
+-- the elevator is not on a floor by itself
 arraycontains(ARRAY[m1, g1, m2, g2, m3, g3, m4, g4, m5, g5], ARRAY[e])
 and
 -- no microchip is on a floor with a generator
@@ -54,11 +59,7 @@ and
 (m2 = g4 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m2]))) and
 (m2 = g5 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m2])));
 
--- result is 484 rows, out of a possible 1024, so a little
--- over half were removed as impossible
-
--- the id for the sample starting position is 42 (really), but we
--- change it to zero as a trick to help us peek ahead for answers
+-- change the starting position id to zero to make it easy to identify
 update position
 set id = 0
 where e = 1 and
@@ -68,8 +69,7 @@ m3 = 2 and g3 = 1 and
 m4 = 2 and g4 = 1 and
 m5 = 2 and g5 = 1;
 
--- update the id for the final position so it is assuredly the
--- highest
+-- update the id for the final position so it is assuredly the highest
 update position
 set id = 100000000
 where e = 4
@@ -143,7 +143,7 @@ language plpgsql immutable;
 -- use the constraint on id's to ensure no duplication in the connections
 -- table
 
-
+/*
 insert into connected (position1_id, position2_id, distance)
 select
 distinct
@@ -222,6 +222,7 @@ or
       ]) =
     'TWO_DOWN'
 );
+*/
 
 --delete from position
 --where
