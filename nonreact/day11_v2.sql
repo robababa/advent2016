@@ -112,7 +112,7 @@ $$
     select
     m::int as m,
     g::int as g,
-    row_number() over (order by m desc) as place
+    row_number() over (order by m desc, g desc) as place
     from
     source
    )
@@ -122,6 +122,17 @@ $$
   from
   source2;
 $$ language sql immutable;
+
+-- deleting redundant codes the lazy way, after the fact
+-- delete positions that aren't in the proper order, because there is another
+-- position that is the same and is in the proper order
+delete from position where (m_code, g_code) <> reorder_codes(m_code, g_code);
+delete from position as p1 where
+exists(
+  select 1 from position as p2 where p2.m_code = p1.m_code and
+  p2.g_code = p1.g_code and p2.id < p1.id
+);
+
 
 create or replace function move_one(
   floor_change int, id int, e int, m_code int, g_code int
