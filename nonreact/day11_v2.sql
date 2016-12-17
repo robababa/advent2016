@@ -283,13 +283,11 @@ create table sprawl
 -- each time we reach out for more connections, that is a "round"
 create table round
 (
-  id integer primary key check (id = 0),
-  round integer
+  id bigint primary key check (id = 0),
+  round bigint
 );
 
 insert into round (id, round) values (0, 0);
 
 -- initialize the sprawl table with our initial position
 insert into sprawl (position_id, distance) values (0, 0);
-
-update round set round = round + 1;
