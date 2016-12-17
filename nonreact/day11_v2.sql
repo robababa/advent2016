@@ -1,6 +1,6 @@
 -- create the position with the elevator, microchips and generators
 
-drop table if exists position, dummy, outreach, connected, sprawl cascade;
+drop table if exists position, dummy, outreach, connected cascade;
 create table dummy(m_code bigint, g_code bigint);
 
 create table position
@@ -252,18 +252,17 @@ create table connected (
   constraint connected_ordered_positions check (position1_id < position2_id)
 );
 
--- this table will start with positions immediately next to
--- position 0, and spread out from there until one of the paths
--- reaches the final position.  For sample data, this will be
--- the 11th round.  Each iteration will be much smaller than they
--- were before, but they also will take longer to find the final
--- destination
-create table sprawl
-(
-  position_id bigint not null primary key,
-  distance bigint not null
-);
-
--- initialize the sprawl table with our initial position
-insert into sprawl (position_id, distance) values (0, 0);
+-- make the first connections from the outreach table
+insert into connected
+(position1_id, position2_id, distance)
+select
+distinct least(p_old.id, p_new.id), greatest(p_old.id, p_new.id), 1
+from
+position as p_old
+inner join
+outreach as o
+  on p_old.id = o.id_old
+inner join
+position as p_new
+  on o.m_code_new = p_new.m_code and o.g_code_new = p_new.g_code;
 
