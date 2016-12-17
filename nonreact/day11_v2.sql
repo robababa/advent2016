@@ -123,7 +123,9 @@ $$
   source2;
 $$ language sql immutable;
 
-create or replace function up_one(id int, e int, m_code int, g_code int)
+create or replace function move_one(
+  floor_change int, id int, e int, m_code int, g_code int
+)
 returns table(id_old int, e_new int, m_code_new int, g_code_new int)
 as
 $$
@@ -132,14 +134,22 @@ declare
   divisor int := 1; -- we will replace this value
   reorder_return dummy%ROWTYPE;
 begin
+  -- can't move except up or down one floor
+  if (floor_change <> -1 and floor_change <> 1) then
+    return;
+  end if;
   -- cannot go up from the fourth floor
-  if (e >= 4) then
+  if (e >= 4 and floor_change = 1) then
+    return;
+  end if;
+  -- cannot go down from the first floor
+  if (e <= 1 and floor_change = -1) then
     return;
   end if;
 
   -- iniitialize the new e and (old) id, which are the same for every row
   -- that we return
-  e_new := e + 1;
+  e_new := e + floor_change;
   id_old := id;
 
   for i in reverse code_length..1 loop
@@ -147,18 +157,19 @@ begin
     -- if this microchip is on the same floor as the elevator
     -- then move it!  The caller will determine whether the move was legal
     if (m_code / divisor % 10 = e) then
-      reorder_return = reorder_codes(m_code + divisor, g_code);
+      reorder_return = reorder_codes(m_code + floor_change * divisor, g_code);
       m_code_new := reorder_return.m_code;
       g_code_new := reorder_return.g_code;
     return next;
     end if;
 
---    -- do the same thing for the generators
---    if (g_code / divisor % 10 = e) then
---      select reorder_codes(m_code, g_code + divisor) into
---        m_code_new, g_code_new;
---    return next;
---    end if;
+    -- do the same thing for the generators
+    if (g_code / divisor % 10 = e) then
+      reorder_return = reorder_codes(m_code, g_code + floor_change * divisor);
+      m_code_new := reorder_return.m_code;
+      g_code_new := reorder_return.g_code;
+    return next;
+    end if;
   end loop;
   -- we're done
   return;
