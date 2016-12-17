@@ -247,7 +247,27 @@ position,
 lateral (
   select *
   from
+  move_one(-1, position.id, position.e, position.m_code, position.g_code)
+) as lat;
+
+insert into outreach (id_old, e_new, m_code_new, g_code_new)
+select distinct id_old, e_new, m_code_new, g_code_new
+from
+position,
+lateral (
+  select *
+  from
   move_two(1, position.id, position.e, position.m_code, position.g_code)
+) as lat;
+
+insert into outreach (id_old, e_new, m_code_new, g_code_new)
+select distinct id_old, e_new, m_code_new, g_code_new
+from
+position,
+lateral (
+  select *
+  from
+  move_two(-1, position.id, position.e, position.m_code, position.g_code)
 ) as lat;
 
 -- remove the invalid new positions in outreach

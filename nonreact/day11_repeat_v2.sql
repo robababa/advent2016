@@ -1,7 +1,7 @@
 insert into sprawl
 (position_id, distance)
 select
-outreach.id_new, latest_sprawl.distance + 1
+distinct outreach.id_new, latest_sprawl.distance + 1
 from
 round
 inner join
