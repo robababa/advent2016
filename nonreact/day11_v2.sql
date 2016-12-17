@@ -97,24 +97,29 @@ create or replace function reorder_codes(
 )
 as
 $$
-  select
-    sum(m * pow(10, place - 1)) as m_code,
-    sum(g * pow(10, place - 1)) as g_code
-  from
+  with
+  source
+  as
   (
     select
-      m::int as m,
-      g::int as g,
-      row_number() over (order by m desc) as place
+    unnest(string_to_array(code1::varchar, null)) as m,
+    unnest(string_to_array(code2::varchar, null)) as g
+  ),
+  source2
+  as
+  (
+    select
+    m::int as m,
+    g::int as g,
+    row_number() over (order by m desc) as place
     from
-    (
-      select unnest(string_to_array(code1::varchar, null)) as m,
-      unnest(string_to_array(code2::varchar, null)) as g
-    ) as source
-    order by
-    m, g
-  ) as source2;
-end;
+    source
+   )
+  select
+  sum(m * pow(10, place - 1))::integer as m_code,
+  sum(g * pow(10, place - 1))::integer as g_code
+  from
+  source2;
 $$ language sql immutable;
 
 create or replace function up_one(id int, e int, m_code int, g_code int)
