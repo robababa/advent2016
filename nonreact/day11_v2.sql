@@ -169,7 +169,10 @@ create or replace function move_two(
 as
 $$
 declare
+  -- the number of microchips (or generators)
   code_length bigint := length(m_code::varchar);
+  -- the number of microchips + generators
+  double_code_length bigint := code_length * 2;
   divisor bigint;
   divisor2 bigint;
   reorder_return dummy%ROWTYPE;
@@ -194,7 +197,7 @@ begin
   e_new := e + floor_change;
   id_old := id;
 
-  for i in reverse code_length..2 loop
+  for i in reverse double_code_length..2 loop
     divisor := pow(10, i - 1)::bigint;
     -- if this item is on the same floor as the elevator...
     if (item_code / divisor % 10 = e) then
@@ -202,7 +205,7 @@ begin
       for j in reverse (i-1)..1 loop
         divisor2 := pow(10, j - 1)::bigint;
         -- if this item is also on the same floor as the elevator...
-        if (item_code / divisor % 10 = e) then
+        if (item_code / divisor2 % 10 = e) then
           -- move them together!!
           new_item_code = item_code + floor_change * (divisor + divisor2);
           -- put the microchip and generator codes in the preferred order
