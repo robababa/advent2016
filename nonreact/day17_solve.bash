@@ -10,7 +10,7 @@ ATTEMPTS=0
 while [[ $DONE -eq 0 ]]
 do
   ATTEMPTS=$(expr $ATTEMPTS + 1)
-  echo "Attempt #${ATTEMPTS}"
+  ###echo "Attempt #${ATTEMPTS}"
   psql --file="./day17_iterate.sql"
   DONE=$(psql --no-align --tuples-only --command="select count(*) from position where room = 44")
 done
