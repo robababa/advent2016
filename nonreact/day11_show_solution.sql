@@ -18,6 +18,7 @@ s.distance = sp.distance - 1
 --select position_id, distance from sprawl_positions order by distance;
 select
 sprawl_positions.distance,
+position.id,
 position.e,
 position.m_code,
 position.g_code
