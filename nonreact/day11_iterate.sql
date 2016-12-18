@@ -22,7 +22,3 @@ group by
 outreach.id_new, latest_sprawl.distance + 1;
 
 update round set round = round + 1;
-
--- look for our destination row
-select * from sprawl where position_id = 100000000;
-
