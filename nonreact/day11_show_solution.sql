@@ -1,19 +1,17 @@
 with recursive
-sprawl_positions(position_id, distance) as (
-select position_id, distance from sprawl where position_id = 100000000
+sprawl_positions(position_id, distance, prior_position_id) as (
+select position_id, distance, prior_position_id
+from sprawl
+where position_id = 100000000
 UNION ALL
 select
-s.position_id, s.distance
+s.position_id, s.distance, s.prior_position_id
 from
 sprawl_positions as sp
 inner join
-outreach as o
-on sp.position_id = o.id_new
-inner join
 sprawl as s
-on o.id_old = s.position_id
-where
-s.distance = sp.distance - 1
+on
+s.position_id = sp.prior_position_id
 )
 --select position_id, distance from sprawl_positions order by distance;
 select

@@ -1,7 +1,7 @@
 insert into sprawl
-(position_id, distance)
+(position_id, distance, prior_position_id)
 select
-distinct outreach.id_new, latest_sprawl.distance + 1
+outreach.id_new, latest_sprawl.distance + 1, min(latest_sprawl.position_id)
 from
 round
 inner join
@@ -17,7 +17,9 @@ sprawl as old_sprawl
 on
 outreach.id_new = old_sprawl.position_id
 where
-old_sprawl.position_id is null;
+old_sprawl.position_id is null
+group by
+outreach.id_new, latest_sprawl.distance + 1;
 
 update round set round = round + 1;
 

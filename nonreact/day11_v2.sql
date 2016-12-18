@@ -292,7 +292,7 @@ id_new = p.id
 from
 position as p
 where
-o.m_code_new = p.m_code and o.g_code_new = p.g_code;
+o.e_new = p.e and o.m_code_new = p.m_code and o.g_code_new = p.g_code;
 
 -- after the previous update, none of the id_new values should be null
 alter table outreach alter column id_new set not null;
@@ -308,7 +308,8 @@ create index on outreach (id_old);
 create table sprawl
 (
   position_id bigint not null primary key,
-  distance bigint not null
+  distance bigint not null,
+  prior_position_id bigint not null
 );
 
 -- each time we reach out for more connections, that is a "round"
@@ -321,4 +322,5 @@ create table round
 insert into round (id, round) values (0, 0);
 
 -- initialize the sprawl table with our initial position
-insert into sprawl (position_id, distance) values (0, 0);
+insert into sprawl (position_id, distance, prior_position_id)
+  values (0, 0, -1);
