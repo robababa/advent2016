@@ -206,16 +206,22 @@ begin
         divisor2 := pow(10, j - 1)::bigint;
         -- if this item is also on the same floor as the elevator...
         if (item_code / divisor2 % 10 = e) then
-          -- move them together!!
-          new_item_code = item_code + floor_change * (divisor + divisor2);
-          -- put the microchip and generator codes in the preferred order
-          reorder_return = reorder_codes(
-            new_item_code / pow(10, code_length)::bigint,
-            new_item_code % pow(10, code_length)::bigint
-          );
-          m_code_new := reorder_return.m_code;
-          g_code_new := reorder_return.g_code;
-          return next;
+          -- if they're both microchips, or both generators, or
+          -- a corresponding microchip and generator
+          if  ((i > code_length and j > code_length) or
+               (i <= code_length and j <= code_length) or
+               (i - j = code_length)) then
+            -- move them together!!
+            new_item_code = item_code + floor_change * (divisor + divisor2);
+            -- put the microchip and generator codes in the preferred order
+            reorder_return = reorder_codes(
+              new_item_code / pow(10, code_length)::bigint,
+              new_item_code % pow(10, code_length)::bigint
+            );
+            m_code_new := reorder_return.m_code;
+            g_code_new := reorder_return.g_code;
+            return next;
+          end if;
         end if;
       end loop;
     end if;
