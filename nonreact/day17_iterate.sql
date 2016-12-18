@@ -16,7 +16,9 @@ as
   case when substr(md5(p.md5_source), 1, 1) not in ('b','c','d','e','f') then B'0111' else B'1111' end &
   case when substr(md5(p.md5_source), 2, 1) not in ('b','c','d','e','f') then B'1011' else B'1111' end &
   case when substr(md5(p.md5_source), 3, 1) not in ('b','c','d','e','f') then B'1101' else B'1111' end &
-  case when substr(md5(p.md5_source), 4, 1) not in ('b','c','d','e','f') then B'1110' else B'1111' end
+  case when substr(md5(p.md5_source), 4, 1) not in ('b','c','d','e','f') then B'1110' else B'1111' end &
+  -- if we reached room 44, our destination, then stop
+  case when p.room = 44 then B'0000' else B'1111' end
   as
   bitstring_code
   from
