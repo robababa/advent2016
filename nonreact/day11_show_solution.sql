@@ -15,6 +15,7 @@ on o.id_old = s.position_id
 where
 s.distance = sp.distance - 1
 )
+--select position_id, distance from sprawl_positions order by distance;
 select
 sprawl_positions.distance,
 position.e,
