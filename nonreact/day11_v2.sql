@@ -37,8 +37,8 @@ $$
   as
   (
     select
-    m::int as m,
-    g::int as g,
+    m::bigint as m,
+    g::bigint as g,
     row_number() over (order by m desc, g desc) as place
     from
     source
@@ -139,7 +139,7 @@ begin
   id_old := id;
 
   for i in reverse code_length..1 loop
-    divisor := pow(10, i - 1)::int;
+    divisor := pow(10, i - 1)::bigint;
     -- if this microchip is on the same floor as the elevator
     -- then move it!  The caller will determine whether the move was legal
     if (m_code / divisor % 10 = e) then
@@ -170,11 +170,11 @@ as
 $$
 declare
   code_length bigint := length(m_code::varchar);
-  divisor bigint := 1; -- we will replace this value
-  divisor2 bigint := 1; -- we will replace this value
+  divisor bigint;
+  divisor2 bigint;
   reorder_return dummy%ROWTYPE;
-  item_code bigint := m_code * pow(10, code_length)::int + g_code;
-  new_item_code bigint := 1; -- we will replace this value
+  item_code bigint := m_code * pow(10, code_length)::bigint + g_code;
+  new_item_code bigint;
 begin
   -- can't move except up or down one floor
   if (floor_change <> -1 and floor_change <> 1) then
@@ -194,19 +194,21 @@ begin
   e_new := e + floor_change;
   id_old := id;
 
-  for i in reverse code_length..1 loop
-    divisor := pow(10, i - 1)::int;
+  for i in reverse code_length..2 loop
+    divisor := pow(10, i - 1)::bigint;
     -- if this item is on the same floor as the elevator...
     if (item_code / divisor % 10 = e) then
       -- look for another item to move with it
       for j in reverse (i-1)..1 loop
-        divisor2 := pow(10, j - 1)::int;
+        divisor2 := pow(10, j - 1)::bigint;
         -- if this item is also on the same floor as the elevator...
         if (item_code / divisor % 10 = e) then
+          -- move them together!!
           new_item_code = item_code + floor_change * (divisor + divisor2);
+          -- put the microchip and generator codes in the preferred order
           reorder_return = reorder_codes(
-            new_item_code / pow(10, code_length)::int,
-            new_item_code % pow(10, code_length)::int
+            new_item_code / pow(10, code_length)::bigint,
+            new_item_code % pow(10, code_length)::bigint
           );
           m_code_new := reorder_return.m_code;
           g_code_new := reorder_return.g_code;
