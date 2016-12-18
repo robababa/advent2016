@@ -1,5 +1,9 @@
 #!/bin/bash
 
+cd $(basename $0)
+
+psql --file=./day11_v2.sql
+
 DONE=0
 ATTEMPTS=0
 

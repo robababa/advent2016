@@ -17,6 +17,10 @@ create table position
   g4 bigint not null check (g2 in (1,2,3,4)),
   m5 bigint not null check (m2 in (1,2,3,4)),
   g5 bigint not null check (g2 in (1,2,3,4)),
+  m6 bigint not null check (m2 in (1,2,3,4)),
+  g6 bigint not null check (g2 in (1,2,3,4)),
+  m7 bigint not null check (m2 in (1,2,3,4)),
+  g7 bigint not null check (g2 in (1,2,3,4)),
   m_code bigint not null,
   g_code bigint not null
 );
@@ -50,14 +54,17 @@ $$
   source2;
 $$ language sql immutable;
 
-insert into position (e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5, m_code, g_code)
+insert into position
+(e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5, m6, g6, m7, g7, m_code, g_code)
 select
-e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5, m_code, g_code
+e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5, m6, g6, m7, g7, m_code, g_code
 from
 (
-  select e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5,
-    m1 * 10000 + m2 * 1000 + m3 * 100 + m4 * 10 + m5 as m_code,
-    g1 * 10000 + g2 * 1000 + g3 * 100 + g4 * 10 + g5 as g_code
+  select e, m1, g1, m2, g2, m3, g3, m4, g4, m5, g5, m6, g6, m7, g7,
+    m1 * 1000000 + m2 * 100000 + m3 * 10000 + m4 * 1000
+    + m5 * 100 + m6 * 10 + m7 as m_code,
+    g1 * 1000000 + g2 * 100000 + g3 * 10000 + g4 * 1000
+    + g5 * 100 + g6 * 10 + g7 as g_code
   from
   (select generate_series(1,4,1)::bigint as e) as  e cross join
   (select generate_series(1,4,1)::bigint as m1) as m1 cross join
@@ -69,21 +76,28 @@ from
   (select generate_series(1,4,1)::bigint as m4) as m4 cross join
   (select generate_series(1,4,1)::bigint as g4) as g4 cross join
   (select generate_series(1,4,1)::bigint as m5) as m5 cross join
-  (select generate_series(1,4,1)::bigint as g5) as g5
+  (select generate_series(1,4,1)::bigint as g5) as g5 cross join
+  (select generate_series(1,4,1)::bigint as m6) as m6 cross join
+  (select generate_series(1,4,1)::bigint as g6) as g6 cross join
+  (select generate_series(1,4,1)::bigint as m7) as m7 cross join
+  (select generate_series(1,4,1)::bigint as g7) as g7
   where
   -- the microchip floors are in ascending order, to eliminate redundancy
-  (m1 <= m2 and m2 <= m3 and m3 <= m4 and m4 <= m5)
+  (m1 <= m2 and m2 <= m3 and m3 <= m4 and m4 <= m5 and m5 <= m6 and m6 <= m7)
   and
   -- the elevator is not on a floor by itself
-  arraycontains(ARRAY[m1, g1, m2, g2, m3, g3, m4, g4, m5, g5], ARRAY[e])
+  arraycontains(ARRAY[m1, g1, m2, g2, m3, g3, m4, g4, m5, g5, m6, g6, m7, g7],
+    ARRAY[e])
   and
   -- no microchip is on a floor with a generator
   -- but without its own generator
-  (m1 = g1 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m1]))) and
-  (m2 = g2 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m2]))) and
-  (m3 = g3 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m3]))) and
-  (m4 = g4 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m4]))) and
-  (m5 = g5 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5], ARRAY[m5])))
+  (m1 = g1 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5,g6,g7], ARRAY[m1]))) and
+  (m2 = g2 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5,g6,g7], ARRAY[m2]))) and
+  (m3 = g3 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5,g6,g7], ARRAY[m3]))) and
+  (m4 = g4 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5,g6,g7], ARRAY[m4]))) and
+  (m5 = g5 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5,g6,g7], ARRAY[m5]))) and
+  (m6 = g6 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5,g6,g7], ARRAY[m6]))) and
+  (m7 = g7 or not (arraycontains(ARRAY[g1,g2,g3,g4,g5,g6,g7], ARRAY[m7])))
 ) as source
 where
 -- this is the arrangement that has codes in preferred order
@@ -96,8 +110,10 @@ where e = 1 and
 m1 = 1 and g1 = 1 and
 m2 = 1 and g2 = 1 and
 m3 = 1 and g3 = 1 and
-m4 = 2 and g4 = 1 and
-m5 = 2 and g5 = 1;
+m4 = 1 and g4 = 1 and
+m5 = 1 and g5 = 1 and
+m6 = 2 and g6 = 1 and
+m7 = 2 and g7 = 1;
 
 -- update the id for the final position so it is assuredly the highest
 update position
@@ -108,7 +124,9 @@ m1 = 4 and g1 = 4 and
 m2 = 4 and g2 = 4 and
 m3 = 4 and g3 = 4 and
 m4 = 4 and g4 = 4 and
-m5 = 4 and g5 = 4;
+m5 = 4 and g5 = 4 and
+m6 = 4 and g6 = 4 and
+m7 = 4 and g7 = 4;
 
 create or replace function move_one(
   floor_change bigint, id bigint, e bigint, m_code bigint, g_code bigint
