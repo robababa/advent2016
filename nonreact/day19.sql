@@ -1,20 +1,26 @@
--- select generate_series(27220, 3004953, 29999) as possible_answer
--- intersect
--- select generate_series(27082, 3004953, 30001) as possible_answer;
+/*
+select generate_series(27220, 3004953, 29999) as possible_answer
+intersect
+select generate_series(27082, 3004953, 30001) as possible_answer;
+*/
 
 with recursive game(players, last_player_had_turn, previous_length) as
 (
   with
   player_count as (
     select 3004953::int as player_count
+--    select 7::int as player_count
   ),
   source as (
-    select chr((generate_series(0, player_count - 1, 1) % 30001) + 1) as player
+    select chr((generate_series(0, player_count - 1, 1) % 10001) + 1) as player
+--    select chr((generate_series(0, player_count - 1, 1) % 3) + 1) as player
+--    select chr((generate_series(0, player_count - 1, 1) % 5) + 1) as player
+--    select chr(generate_series(1, player_count, 1)) as player
     from player_count
   )
   select
     regexp_replace(string_agg(player, ''), '(.).', '\1', 'g') as players,
-    false as last_player_had_turn,
+    (select player_count % 2 = 0 from player_count) as last_player_had_turn,
     (select player_count from player_count) as previous_length
   from
   source
