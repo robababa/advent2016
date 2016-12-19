@@ -1,7 +1,7 @@
 /*
-select generate_series(27220, 3004953, 29999) as possible_answer
+select generate_series(15663, 3004953, 29999) as possible_answer
 intersect
-select generate_series(27082, 3004953, 30001) as possible_answer;
+select generate_series(15543, 3004953, 30001) as possible_answer;
 */
 
 with recursive game(players, last_player_had_turn, previous_length) as
@@ -9,10 +9,10 @@ with recursive game(players, last_player_had_turn, previous_length) as
   with
   player_count as (
     select 3004953::int as player_count
---    select 7::int as player_count
+--    select 13::int as player_count
   ),
   source as (
-    select chr((generate_series(0, player_count - 1, 1) % 10001) + 1) as player
+    select chr((generate_series(0, player_count - 1, 1) % 30001) + 1) as player
 --    select chr((generate_series(0, player_count - 1, 1) % 3) + 1) as player
 --    select chr((generate_series(0, player_count - 1, 1) % 5) + 1) as player
 --    select chr(generate_series(1, player_count, 1)) as player
@@ -44,7 +44,7 @@ with recursive game(players, last_player_had_turn, previous_length) as
       then
         -- did the last player have a turn this round?  If the number of players
         -- this round was even, then yes, else no
-        length(players) = 2
+        length(players) % 2 = 0
       else
         -- the last player DIDN'T have a turn last round, but we made sure
         -- he did this round
@@ -57,5 +57,6 @@ with recursive game(players, last_player_had_turn, previous_length) as
   where
   previous_length > 1
 )
+--select ascii(players), * from game;
 select ascii(players), * from game where previous_length = 1;
 
