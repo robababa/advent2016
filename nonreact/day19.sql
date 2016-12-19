@@ -1,12 +1,15 @@
+-- select generate_series(27220, 3004953, 29999) as possible_answer
+-- intersect
+-- select generate_series(27082, 3004953, 30001) as possible_answer;
+
 with recursive game(players, last_player_had_turn, previous_length) as
 (
   with
   player_count as (
---    select 3004953::int as player_count
-    select 5::int as player_count
+    select 3004953::int as player_count
   ),
   source as (
-    select chr(generate_series(1, player_count, 1)) as player
+    select chr((generate_series(0, player_count - 1, 1) % 30001) + 1) as player
     from player_count
   )
   select
@@ -48,5 +51,5 @@ with recursive game(players, last_player_had_turn, previous_length) as
   where
   previous_length > 1
 )
-select * from game where previous_length = 1;
+select ascii(players), * from game where previous_length = 1;
 
