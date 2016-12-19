@@ -8,11 +8,11 @@ with recursive game(players, last_player_had_turn, previous_length) as
 (
   with
   player_count as (
-    select 3004953::int as player_count
+    select (:PLAYER_COUNT)::int as player_count
 --    select 13::int as player_count
   ),
   source as (
-    select chr((generate_series(0, player_count - 1, 1) % 30001) + 1) as player
+    select chr((generate_series(0, player_count - 1, 1) % :MODULUS) + 1) as player
 --    select chr((generate_series(0, player_count - 1, 1) % 3) + 1) as player
 --    select chr((generate_series(0, player_count - 1, 1) % 5) + 1) as player
 --    select chr(generate_series(1, player_count, 1)) as player
@@ -58,5 +58,5 @@ with recursive game(players, last_player_had_turn, previous_length) as
   previous_length > 1
 )
 --select ascii(players), * from game;
-select ascii(players), * from game where previous_length = 1;
+select ascii(players) from game where previous_length = 1;
 
