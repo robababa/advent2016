@@ -98,7 +98,13 @@ UNION ALL
  )
 )
 --select * from blocked_segments order by merge_round, blocked;
-select merge_round, count(*) from blocked_segments
+--select merge_round, count(*) from blocked_segments
+select
+merge_round,
+4294967295 + 1 - (sum(upper(blocked)) - sum(lower(blocked)))
+  as allowed_address_count
+from
+blocked_segments
 group by merge_round
 order by merge_round;
 
