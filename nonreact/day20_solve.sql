@@ -1,4 +1,4 @@
--- -- part 1l
+-- -- part 1
 -- with
 -- candidates as (
 --   -- it would be 0 if no range contained zero
@@ -18,16 +18,17 @@
 
 -- part 2
 
-drop aggregate if exists sum(int8range);
+drop aggregate if exists range_sum(int8range);
 
-create aggregate sum(int8range) (sfunc = range_union, stype = int8range, initcond = 'empty');
+create aggregate range_sum(int8range) (sfunc = range_union, stype = int8range, initcond = 'empty');
 
 with recursive blocked_segments(
   merge_round, blocked, starting_segment, segment_count
 ) as
 (
   -- initial set
-  (with
+ (
+  with
   source as (
     select
     1 as merge_round,
@@ -43,7 +44,8 @@ with recursive blocked_segments(
   starting_segment,
   1::bigint as segment_count
   from
-  source)
+  source
+ )
 UNION ALL
   -- recursive part
  (
@@ -56,7 +58,11 @@ UNION ALL
     case
     -- when this blocked range overlaps (&&) or is adjacent to (-|-) the
     -- preceding range, then we can merge it.
-    when (blocked && lag(blocked) over () or blocked -|- lag(blocked) over ())
+    when (
+      (blocked && lag(blocked) over ())
+      or
+      blocked -|- lag(blocked) over ()
+    )
     then null::int8
     else starting_segment
     end
@@ -73,23 +79,26 @@ UNION ALL
     max(merge_segment) over (rows unbounded preceding) as final_segment
     from
     identify_merges
-    order by starting_segment
+    order by blocked, starting_segment
   ),
   merge_final_segments as (
     select
     merge_round,
-    sum(blocked) as blocked,
+    range_sum(blocked order by blocked asc) as blocked,
     final_segment as starting_segment,
-    count(*) as segment_count
+    count(blocked) as segment_count
     from
     identify_final_segments
     group by
     merge_round,
     final_segment
+    order by merge_round, final_segment
   )
-  select merge_round, blocked, starting_segment, segment_count from merge_final_segments where 1 = 0
+  select merge_round, blocked, starting_segment, segment_count from merge_final_segments where merge_round <= 10
  )
 )
-select * from blocked_segments;
---- select * from blocked_segments;
+--select * from blocked_segments order by merge_round, blocked;
+select merge_round, count(*) from blocked_segments
+group by merge_round
+order by merge_round;
 
