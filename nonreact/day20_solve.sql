@@ -1,20 +1,20 @@
--- -- part 1
--- with
--- candidates as (
---   -- it would be 0 if no range contained zero
---   select 0
---   union all
---   select upper(blocked) as candidate from blocked_range
---   order by 1
--- )
--- select
--- min(candidate)
--- from
--- candidates
--- where
--- not exists(
---   select 1 from blocked_range where blocked @> candidate
--- );
+-- part 1
+with
+candidates as (
+  -- it would be 0 if no range contained zero
+  select 0 as candidate
+  union all
+  select upper(blocked) as candidate from blocked_range
+  order by 1
+)
+select
+min(candidate)
+from
+candidates
+where
+not exists(
+  select 1 from blocked_range where blocked @> candidate
+);
 
 -- part 2
 
