@@ -23,29 +23,16 @@ drop aggregate if exists range_sum(int8range);
 create aggregate range_sum(int8range) (sfunc = range_union, stype = int8range, initcond = 'empty');
 
 with recursive blocked_segments(
-  merge_round, blocked, starting_segment, segment_count
+  merge_round, blocked, starting_segment
 ) as
 (
   -- initial set
- (
-  with
-  source as (
-    select
-    1 as merge_round,
-    blocked,
-    row_number() over (order by blocked) as starting_segment
-    from
-    blocked_range
-    order by 2
-  )
   select
-  merge_round,
+  1 as merge_round,
   blocked,
-  starting_segment,
-  1::bigint as segment_count
+  row_number() over (order by blocked) as starting_segment
   from
-  source
- )
+  blocked_range
 UNION ALL
   -- recursive part
  (
@@ -85,8 +72,7 @@ UNION ALL
     select
     merge_round,
     range_sum(blocked order by blocked asc) as blocked,
-    final_segment as starting_segment,
-    count(blocked) as segment_count
+    final_segment as starting_segment
     from
     identify_final_segments
     group by
@@ -94,7 +80,7 @@ UNION ALL
     final_segment
     order by merge_round, final_segment
   )
-  select merge_round, blocked, starting_segment, segment_count from merge_final_segments where merge_round <= 10
+  select merge_round, blocked, starting_segment from merge_final_segments where merge_round <= 10
  )
 )
 --select * from blocked_segments order by merge_round, blocked;
