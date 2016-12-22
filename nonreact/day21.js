@@ -72,13 +72,15 @@ function unrotateSpecial(s, letter) {
   var newIndex = s.indexOf(letter);
   var oldIndex = -1; // we will replace this!
   for (var i = 0; i < s.length; i++) {
-    if ((1 + i + ( i >= 4 ? 1 : 0)) % s.length === newIndex) {
+    if ((i + 1 + i + ( i >= 4 ? 1 : 0)) % s.length === newIndex) {
+      //console.log('index', i, 'matches')
       oldIndex = i
     }
   }
   // now that we know where the letter was, let's see how many places we
   // must go to get back
-  var leftAmount = s.length - newIndex + oldIndex;
+  var leftAmount = (s.length - oldIndex + newIndex) % s.length;
+  //console.log('calling rotateLeft with', leftAmount);
   return rotateLeft(s, leftAmount)
 }
 
@@ -119,7 +121,7 @@ var command = [];
 // part 2
 for (var i = INSTRUCTION_ARRAY.length - 1; i >= 0; i--) {
   command = INSTRUCTION_ARRAY[i]
-  //console.log(command)
+  console.log(command)
   switch (command[0]) {
     case 'swapPosition':
       // function is its own inverse

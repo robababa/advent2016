@@ -1,6 +1,6 @@
-var s = 'decab';
+var s = 'fbgdceah';
 
-const INSTRUCTION_ARRAY =
+const SHORT_INSTRUCTION_ARRAY =
 `swap position 4 with position 0
 swap letter d with letter b
 reverse positions 0 through 4
@@ -35,7 +35,7 @@ rotate based on position of letter d`
   function(element, index){ return element.split(" ");
 });
 
-const LONG_INSTRUCTION_ARRAY =
+const INSTRUCTION_ARRAY =
 `rotate left 2 steps
 rotate right 0 steps
 rotate based on position of letter a
