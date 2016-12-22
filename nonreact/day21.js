@@ -73,7 +73,7 @@ function reversePositions(s, p1, p2) {
 
 function rotateLeft(s, left) {
   return s.split("").map((element, index) => {
-    return s[(s.length + index + left) % s.length]
+    return s[(s.length * 2 + index + left) % s.length]
   }).join("");
 }
 
@@ -81,16 +81,45 @@ function rotateRight(s, right) {
   return rotateLeft(s, right * -1);
 }
 
+function movePosition(s, oldPos, newPos) {
+  // remove the character at the old position
+  return (s.substring(0, oldPos) + s.substring(oldPos + 1))
+    .split("")
+    .map((element, index) => {
+      if (index === newPos) {
+        // insert the moved character before the current character
+        return s[oldPos] + element
+      } else {
+        return element
+      }
+    }).join("") +
+    // if the new position is at the end, put the moved character there
+    (newPos === s.length - 1 ? s[oldPos] : '')
+}
+
+function rotateSpecial(s, letter) {
+  return rotateRight(
+    s,
+    1 + s.indexOf(letter) + (s.indexOf(letter) >= 4 ? 1 : 0)
+  )
+}
+
 console.log(INSTRUCTION_ARRAY);
-console.log(s);
+console.log('start: ', s);
 s = swapPosition(s, 4, 0);
-console.log(s);
+console.log('after swapPosition: ', s);
 s = swapLetter(s, 'd', 'b');
-console.log(s);
+console.log('after swapLetter: ', s);
 s = reversePositions(s, 0, 4);
-console.log(s);
+console.log('after reversePositions: ', s);
 s = rotateLeft(s, 1);
-console.log(s);
-s = rotateRight(s, 1);
-console.log(s);
+console.log('after rotateLeft: ', s);
+s = movePosition(s, 1, 4);
+console.log('after movePosition: ', s);
+s = movePosition(s, 3, 0);
+console.log('after movePosition: ', s);
+s = rotateSpecial(s, 'b');
+console.log('after rotateSpecial: ', s);
+s = rotateSpecial(s, 'd');
+console.log('after rotateSpecial: ', s);
 
