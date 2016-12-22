@@ -68,55 +68,89 @@ function rotateSpecial(s, letter) {
   )
 }
 
+function unrotateSpecial(s, letter) {
+  var newIndex = s.indexOf(letter);
+  var oldIndex = -1; // we will replace this!
+  for (var i = 0; i < s.length; i++) {
+    if ((1 + i + ( i >= 4 ? 1 : 0)) % s.length === newIndex) {
+      oldIndex = i
+    }
+  }
+  // now that we know where the letter was, let's see how many places we
+  // must go to get back
+  var leftAmount = s.length - newIndex + oldIndex;
+  return rotateLeft(s, leftAmount)
+}
+
 var command = [];
 
-for (var i = 0; i < INSTRUCTION_ARRAY.length; i++) {
+// part 1
+//for (var i = 0; i < INSTRUCTION_ARRAY.length; i++) {
+//  command = INSTRUCTION_ARRAY[i]
+//  //console.log(command)
+//  switch (command[0]) {
+//    case 'swapPosition':
+//      s = swapPosition(s, Number.parseInt(command[1]), Number.parseInt(command[2]))
+//      break
+//    case 'swapLetter':
+//      s = swapLetter(s, command[1], command[2])
+//      break
+//    case 'reversePositions':
+//      s = reversePositions(s, Number.parseInt(command[1]), Number.parseInt(command[2]))
+//      break
+//    case 'rotateLeft':
+//      s = rotateLeft(s, Number.parseInt(command[1]))
+//      break
+//    case 'rotateRight':
+//      s = rotateRight(s, Number.parseInt(command[1]))
+//      break
+//    case 'movePosition':
+//      s = movePosition(s, Number.parseInt(command[1]), Number.parseInt(command[2]))
+//      break
+//    case 'rotateSpecial':
+//      s = rotateSpecial(s, command[1])
+//      break
+//    default:
+//      break
+//  }
+//  console.log(s)
+//}
+
+// part 2
+for (var i = INSTRUCTION_ARRAY.length - 1; i >= 0; i--) {
   command = INSTRUCTION_ARRAY[i]
   //console.log(command)
   switch (command[0]) {
     case 'swapPosition':
+      // function is its own inverse
       s = swapPosition(s, Number.parseInt(command[1]), Number.parseInt(command[2]))
       break
     case 'swapLetter':
+      // function is its own inverse
       s = swapLetter(s, command[1], command[2])
       break
     case 'reversePositions':
+      // function is its own inverse
       s = reversePositions(s, Number.parseInt(command[1]), Number.parseInt(command[2]))
       break
     case 'rotateLeft':
-      s = rotateLeft(s, Number.parseInt(command[1]))
-      break
-    case 'rotateRight':
+      // rotateLeft and rotateRight are inverses of each other
       s = rotateRight(s, Number.parseInt(command[1]))
       break
+    case 'rotateRight':
+      // ditto
+      s = rotateLeft(s, Number.parseInt(command[1]))
+      break
     case 'movePosition':
-      s = movePosition(s, Number.parseInt(command[1]), Number.parseInt(command[2]))
+      // movePosition's inverse is itself with operands reversed
+      s = movePosition(s, Number.parseInt(command[2]), Number.parseInt(command[1]))
       break
     case 'rotateSpecial':
-      s = rotateSpecial(s, command[1])
+      // I had to create a new function for this inverse
+      s = unrotateSpecial(s, command[1])
       break
     default:
       break
   }
   console.log(s)
 }
-
-// console.log(INSTRUCTION_ARRAY);
-// console.log('start: ', s);
-// s = swapPosition(s, 4, 0);
-// console.log('after swapPosition: ', s);
-// s = swapLetter(s, 'd', 'b');
-// console.log('after swapLetter: ', s);
-// s = reversePositions(s, 0, 4);
-// console.log('after reversePositions: ', s);
-// s = rotateLeft(s, 1);
-// console.log('after rotateLeft: ', s);
-// s = movePosition(s, 1, 4);
-// console.log('after movePosition: ', s);
-// s = movePosition(s, 3, 0);
-// console.log('after movePosition: ', s);
-// s = rotateSpecial(s, 'b');
-// console.log('after rotateSpecial: ', s);
-// s = rotateSpecial(s, 'd');
-// console.log('after rotateSpecial: ', s);
-
