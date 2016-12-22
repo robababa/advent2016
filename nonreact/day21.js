@@ -1,41 +1,5 @@
-//import { PUZZLE_INPUT, INSTRUCTION_ARRAY } from './day21_data';
-
-var INSTRUCTION_ARRAY =
-`swap position 4 with position 0
-swap letter d with letter b
-reverse positions 0 through 4
-rotate left 1 step
-move position 1 to position 4
-move position 3 to position 0
-rotate based on position of letter b
-rotate based on position of letter d`
-.replace(
-  /swap position/g, "swapPosition"
-).replace(
-  /swap letter/g,"swapLetter"
-).replace(
-  /reverse positions/g,"reversePositions"
-).replace(
-  /rotate left/g,"rotateLeft"
-).replace(
-  /rotate right/g,"rotateRight"
-).replace(
-  /move position/g,"movePosition"
-).replace(
-  /rotate based on position of letter/g,"rotateSpecial"
-).replace(
-  /with position|with letter|through|to position/g,""
-).replace(
-  / steps| step/g,""
-).replace(
-  / +/g," "
-).split(
-  "\n"
-).map(
-  function(element, index){ return element.split(" ");
-});
-
-var s = 'abcde';
+// run this in node with
+// cat day21_input.js day21.js | node
 
 function swapPosition(s, p1, p2) {
   return s.split("").map((element, index) => {
@@ -104,22 +68,55 @@ function rotateSpecial(s, letter) {
   )
 }
 
-console.log(INSTRUCTION_ARRAY);
-console.log('start: ', s);
-s = swapPosition(s, 4, 0);
-console.log('after swapPosition: ', s);
-s = swapLetter(s, 'd', 'b');
-console.log('after swapLetter: ', s);
-s = reversePositions(s, 0, 4);
-console.log('after reversePositions: ', s);
-s = rotateLeft(s, 1);
-console.log('after rotateLeft: ', s);
-s = movePosition(s, 1, 4);
-console.log('after movePosition: ', s);
-s = movePosition(s, 3, 0);
-console.log('after movePosition: ', s);
-s = rotateSpecial(s, 'b');
-console.log('after rotateSpecial: ', s);
-s = rotateSpecial(s, 'd');
-console.log('after rotateSpecial: ', s);
+var command = [];
+
+for (var i = 0; i < INSTRUCTION_ARRAY.length; i++) {
+  command = INSTRUCTION_ARRAY[i]
+  //console.log(command)
+  switch (command[0]) {
+    case 'swapPosition':
+      s = swapPosition(s, Number.parseInt(command[1]), Number.parseInt(command[2]))
+      break
+    case 'swapLetter':
+      s = swapLetter(s, command[1], command[2])
+      break
+    case 'reversePositions':
+      s = reversePositions(s, Number.parseInt(command[1]), Number.parseInt(command[2]))
+      break
+    case 'rotateLeft':
+      s = rotateLeft(s, Number.parseInt(command[1]))
+      break
+    case 'rotateRight':
+      s = rotateRight(s, Number.parseInt(command[1]))
+      break
+    case 'movePosition':
+      s = movePosition(s, Number.parseInt(command[1]), Number.parseInt(command[2]))
+      break
+    case 'rotateSpecial':
+      s = rotateSpecial(s, command[1])
+      break
+    default:
+      break
+  }
+  console.log(s)
+}
+
+// console.log(INSTRUCTION_ARRAY);
+// console.log('start: ', s);
+// s = swapPosition(s, 4, 0);
+// console.log('after swapPosition: ', s);
+// s = swapLetter(s, 'd', 'b');
+// console.log('after swapLetter: ', s);
+// s = reversePositions(s, 0, 4);
+// console.log('after reversePositions: ', s);
+// s = rotateLeft(s, 1);
+// console.log('after rotateLeft: ', s);
+// s = movePosition(s, 1, 4);
+// console.log('after movePosition: ', s);
+// s = movePosition(s, 3, 0);
+// console.log('after movePosition: ', s);
+// s = rotateSpecial(s, 'b');
+// console.log('after rotateSpecial: ', s);
+// s = rotateSpecial(s, 'd');
+// console.log('after rotateSpecial: ', s);
 
