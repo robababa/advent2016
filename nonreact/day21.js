@@ -61,10 +61,22 @@ function swapLetter(s, letter1, letter2) {
   }).join("");
 }
 
+function reversePositions(s, p1, p2) {
+  return s.split("").map((element, index) => {
+    if (index >= p1 && index <= p2) {
+      return s[p2 - index + p1]
+    } else {
+      return s[index]
+    }
+  }).join("");
+}
+
 console.log(INSTRUCTION_ARRAY);
 console.log(s);
 s = swapPosition(s, 4, 0);
 console.log(s);
 s = swapLetter(s, 'd', 'b');
+console.log(s);
+s = reversePositions(s, 0, 4);
 console.log(s);
 
