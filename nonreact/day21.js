@@ -71,6 +71,16 @@ function reversePositions(s, p1, p2) {
   }).join("");
 }
 
+function rotateLeft(s, left) {
+  return s.split("").map((element, index) => {
+    return s[(s.length + index + left) % s.length]
+  }).join("");
+}
+
+function rotateRight(s, right) {
+  return rotateLeft(s, right * -1);
+}
+
 console.log(INSTRUCTION_ARRAY);
 console.log(s);
 s = swapPosition(s, 4, 0);
@@ -78,5 +88,9 @@ console.log(s);
 s = swapLetter(s, 'd', 'b');
 console.log(s);
 s = reversePositions(s, 0, 4);
+console.log(s);
+s = rotateLeft(s, 1);
+console.log(s);
+s = rotateRight(s, 1);
 console.log(s);
 
